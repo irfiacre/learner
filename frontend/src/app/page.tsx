@@ -1,9 +1,29 @@
 "use client";
-
+import { useBeginnerAnswer } from "@/hooks/useBeginner";
+import { useSession } from "@/hooks/useSession";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ANONYMOUS_USER } from "@/constants";
 
 export default function Home() {
+  const { handleCreateNewSession, sessionId, handleUserIdChange } = useSession();
+  useEffect(() => {
+    let result;
+    (async () => {
+      handleUserIdChange(ANONYMOUS_USER);
+      await handleCreateNewSession(ANONYMOUS_USER, `/apps/beginner_agent/users/${ANONYMOUS_USER}/sessions`);
+    })();
+  }, []);
+
+  const {
+    isAnswerReady,
+    isGettingAnswer,
+    answer,
+    sendMessageAndWaitForAnswer,
+  } = useBeginnerAnswer();
+
+  
+
   const [textInput, setTextInput] = useState<string>("");
   const [links, setLinks] = useState<string[]>([""]);
   const [attachments, setAttachments] = useState<(File | null)[]>([null]);
@@ -14,7 +34,6 @@ export default function Home() {
     { value: "english", label: "English" },
   ];
 
-  // Example unit mapping by course
   const unitOptionsMap: Record<string, { value: string; label: string }[]> = {
     math: [
       { value: "algebra", label: "Algebra" },
@@ -39,18 +58,35 @@ export default function Home() {
   };
 
   const [selectedCourse, setSelectedCourse] = useState<string>("");
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const [selectedUnit, setSelectedUnit] = useState<string>("");
 
-  // Get units based on selected course
   const unitOptions = selectedCourse ? unitOptionsMap[selectedCourse] : [];
-  
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
 
-console.log("----", selectedCourse, selectedUnit, textInput, links, attachments);
+  const handleFormSubmit =async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  }
+    console.log(
+      "----",
+      selectedCourse,
+      selectedUnit,
+      textInput,
+      links,
+      attachments
+    );
+
+    try {
+      const agentOutput = await sendMessageAndWaitForAnswer(
+        `Hi, For context find this course: ${selectedCourse}, and the unit: ${selectedUnit}, Links: ${links}`,
+        "beginner_agent",
+        ANONYMOUS_USER,
+        sessionId
+      );
+      console.log("---->", agentOutput);
+      
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-start">
@@ -60,7 +96,6 @@ console.log("----", selectedCourse, selectedUnit, textInput, links, attachments)
         transition={{ duration: 0.8 }}
         className="text-center space-y-4 w-full"
       >
-        {/* Course Name Selector */}
         <div className="flex flex-col items-start w-full">
           <label
             htmlFor="course-name-select"
@@ -86,7 +121,6 @@ console.log("----", selectedCourse, selectedUnit, textInput, links, attachments)
           </select>
         </div>
 
-        {/* Unit Selector */}
         <div className="flex flex-col items-start w-full">
           <label
             htmlFor="unit-select"
