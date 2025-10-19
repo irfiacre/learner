@@ -1,12 +1,7 @@
 from google.adk.agents import Agent, SequentialAgent
 from google.adk.tools import google_search
 from google.genai import types
-from tools.course import (
-    initialize_powerpoint_instance_tool,
-    create_first_slide_tool,
-    add_text_slide_tool,
-    save_powerpoint_tool,
-)
+from tools.service import add_course_to_redis_tool, get_courses_from_redis_tool
 
 
 curriculumn_agent = Agent(
@@ -16,35 +11,55 @@ curriculumn_agent = Agent(
     tools=[google_search],
     generate_content_config=types.GenerateContentConfig(temperature=0.2),
     instruction="""
-    You are an expert astronomer from NASA.
+    <systemRole>
+    You are an expert curriculum developer hired by the Ministry of Education in Rwanda.
+    Your ONLY task is to generate a curriculum for Rwandan secondary school students, based strictly on the Rwanda Education Curriculum Framework.
+    </systemRole>
 
-    AUsing the information that the user has given you, Your ONLY task is to generate a curriculum for an aspiring astronomer who wants to learn about exoplanet datasets from NASA.
+    <inputFormat>
+    The user will provide:
+    - course: Name of the subject (e.g. Biology, Physics, Entrepreneurship).
+    - unit: Specific unit within the course to develop (e.g. "Respiratory System", "Atomic Structure").
+    - links (optional): Use ONLY these sources if provided.
+    - note (optional): User preferences on structure or tone.
+    </inputFormat>
 
-    ## Rules:
-    - Do NOT greet the user.
-    - Do NOT ask questions.
-    - Do NOT wait for confirmation.
-    - IMMEDIATELY produce the final curriculum as your first response.
-    - The curriculum must be short, fun, and interesting.
-    - It should be structured as PowerPoint slide bullet points (3-6 slides max).
-    - Use ✅, 🚀, ⭐, or 🌌 emojis to keep it playful.
-    - Use the google_search tool ONLY if needed for facts.
-    - The last slide should be for resources (links, book references, or articles) title should be "References"
+    <rules>
+    - Use ONLY the Rwandan curriculum approach (Competency-Based Curriculum - CBC).
+    - DO NOT greet the user.
+    - DO NOT ask questions.
+    - DO NOT wait for confirmation.
+    - IMMEDIATELY generate the final curriculum.
+    - Format MUST follow the exact JSON structure below. No markdown. No extra text.
+    - Use google_search ONLY when a factual detail (like national policy or required competencies) is missing.
+    - End with a "References" section listing any source links or textbooks.
+    </rules>
 
-    ## Available Resources:
-    - Dataset: https://exoplanetarchive.ipac.caltech.edu/cgi-bin/TblView/nph-tblView?app=ExoTbls&config=k2pandc
-    - Overview: https://exoplanetarchive.ipac.caltech.edu/docs/intro.html
-    - Data: https://exoplanetarchive.ipac.caltech.edu/docs/data.html
-
-    ## Output Format (MUST FOLLOW):
-    { 
-    "slide1": {"title": "<title for the slides>"}, # This strictly only has the title nothing else.
-    "slide2": {"title": "Title of the slide", "content": a list of text},
-    "slide3": {"title": "Title of the slide", "content": a list of text},
-    ....
+    <outputSchema>
+    {
+    "id": "random uuid" 
+    "name": "Course Unit (provided by user)",
+    "units": [
+        {
+        "title": "Unit Title",
+        "competencies": ["Core Competency 1", "Core Competency 2"],
+        "learning_outcomes": ["Outcome 1", "Outcome 2"],
+        "chapters": [
+            {
+            "title": "Chapter Title",
+            "content": ["Bullet point 1", "Bullet point 2"],
+            "activities": ["Group experiment", "Class discussion"],
+            "assessment": ["Quiz", "Peer evaluation"]
+            }
+        ]
+        }
+    ],
+    "references": ["Link or Book"]
     }
-
-    Generate now
+    </outputSchema>
+    <task>
+    Generate now. and return the final curriculumn developed
+    </task>
     """,
     output_key="user_curriculumn",
 )
@@ -56,87 +71,101 @@ review_agent = Agent(
     tools=[google_search],
     generate_content_config=types.GenerateContentConfig(temperature=0.2),
     instruction="""
-    You are a senior consultant employed by NASA to review and improve a curriculum for aspiring astronomers who want to understand the exoplanet datasets.
+    <systemRole>
+    You are a senior Rwandan teacher with twenty years of classroom experience under the Competency-Based Curriculum (CBC).
+    Your job is to review and enhance the provided curriculum to ensure it aligns with Rwandan education standards.
+    </systemRole>
 
-    ## Input:
-    {user_curriculumn}
+    <inputCurriculum>(user_curriculum)</inputCurriculum>
 
-    ## Review Rules:
-    - The curriculum must be suitable for a novice aspiring astronomer interested in space, technology, and science.
-    - It must be short and optimized for PowerPoint slides (6–10 slides).
-    - It must be fun, engaging, and easy to read.
-    - Remove any overly technical or boring content.
-    - Improve clarity, flow, and excitement, and add more content if you want.
-    - Keep emojis like 🚀, ⭐, 🌌, ✅ if appropriate.
-    - The last slide should be for resources (links, book references, or articles) title should be "References"
+    <reviewGuidelines>
+    - Ensure suitability for Rwandan secondary school students.
+    - Maintain the same structure but improve clarity, flow, and engagement.
+    - Expand content only where needed for completeness.
+    - Strengthen competencies, activities, and assessments if weak or missing.
+    - Preserve JSON formatting exactly as in the schema.
+    </reviewGuidelines>
 
-    ## Output Rules:
-    - Do NOT add greetings or commentary like "Here is the reviewed curriculum".
-    - Do NOT explain your edits.
-    - Your entire output MUST be the **final revised curriculum only**.
+    <outputRules>
+    - Do NOT add greetings, explanations, or commentary.
+    - Do NOT say "Here is the revised curriculum".
+    - OUTPUT ONLY the final improved curriculum in valid JSON according to the schema.
+    </outputRules>
 
-    ## Output Format (STRICTLY FOLLOW THIS):
-    { 
-    "slide1": {"title": "Title for Slides"}, # This strictly only has the title nothing else.
-    "slide2": {"title": "Title of the slide", "content": a list of text},
-    "slide3": {"title": "Title of the slide", "content": a list of text},
-    ....
-    }
+    <outputSchema>
+            {
+                "id": "random uuid" 
+                "name": "Course Unit (provided by user)",
+                "units": [
+                    {
+                        "title": "Unit Title",
+                        "competencies": ["Core Competency 1", "Core Competency 2"],
+                        "learning_outcomes": ["Outcome 1", "Outcome 2"],
+                        "chapters": [{
+                                "title": "Chapter Title",
+                                "content": ["Bullet point 1", "Bullet point 2"],
+                                "activities": ["Group experiment", "Class discussion"],
+                                "assessment": ["Quiz", "Peer evaluation"]
+                            }]
+                    }
+                ],
+                "references": ["Links or Books"],
+            }
+    </outputSchema>
 
-    Generate the improved curriculum now.
+    <task>
+    Rewrite the curriculum strictly according to the schema with all improvements applied.
+    </task>
     """,
     output_key="final_curriculumn",
 )
 
-slides_agent = Agent(
-    name="SlidesAgent",
+course_builder_agent = Agent(
+    name="CourseBuilder",
     model="gemini-2.5-flash",
-    description="This is an AI agent that makes the slides",
+    description="This is an AI agent that builds the course",
     generate_content_config=types.GenerateContentConfig(temperature=0.2),
     instruction="""
-    You are a professional NASA-grade slide designer using python-pptx tools.
+    <role>
+    You are a professional curriculumn developer.
+    </role>
+    <task>
+    Your task is to take the curriculum provided in <input>(final_curriculumn)</input> and convert it develop it according to the rules below:
+    </task>
+    <rules>
+        <functional>
+        - Develop each content of the curriculumn (to the point where a student can understand the concept fully).
+        - At the end of course find relevant youtube videos and add them. Use the following guide:
+          * Each chapter must have atleast 3 videos.
+          * When getting the videos the priority should be relevance, then like count, and lastly shortform content over long form content.
+          * The list of all videos should be added at the end of each curriculumn.
+        - The output should be an improved version of the curriculumn, but it should have a common schema to it.
+        </functional>
+        <nonFunctional>
+        - Do NOT ask questions.
+        - Do NOT explain what you're doing.
+        - Do NOT output text responses.
+        - Use the tools give not you to carry out the task:
+            <tools>
+                1. add_course_to_redis_tool: A fuction that before use you must have the course full prepared and then give it the output to save store the course.
+                2. get_courses_from_redis_tool: An async method that returns all the courses added to our redis caching database.
+                <usage>
+                    Always use the tool "add_course_to_redis_tool" at the end after developing the curriculumn, you have to pass it the resulting json object.
+                </usage>
+            </tools>
+        </nonFunctional>  
+    </rules>
 
-    Your task is to take the curriculum provided in {final_curriculumn} and convert it directly into PowerPoint slides using ONLY the tools provided.
-
-    ## Input Format (IMPORTANT):
-    {final_curriculumn}
-
-    ## Execution Rules:
-    1. Do NOT ask questions.
-    2. Do NOT explain what you're doing.
-    3. Do NOT output text responses.
-    4. ONLY call the tools in the correct order to construct the PowerPoint.
-
-    ## Explanation of the tools:
-    - initialize_powerpoint_instance_tool: Initialize a new PowerPoint presentation instance, it does not need a parameter.
-    - create_first_slide_tool: Create the first slide containing a centered image and a title below it, it needs the title paramete, make sure you have one.
-    - add_text_slide_tool: Create a standard text slide with a title and content, make sure to give it the title and content.
-    - save_powerpoint_tool: this tool saves the PowerPoint presentation, it does not need any parameter.
-
-    ## Tool Usage Order:
-    1. ALWAYS call initialize_powerpoint_instance_tool FIRST.
-    2. For Slide 1:
-    - Use create_first_slide_tool to make it, the tool requires you to have title text.
-    3. For Slide 2 onward:
-    - For each slide, call add_text_slide_tool with the title and content.
-    4. When all slides are added, call save_powerpoint_tool.
-
-    ## Example Thought Process (You MUST follow internally, not output):
-    - Parse slide titles and content
-    - Call tools in order
-
-    Now begin slide creation by calling the tool to initialize powerpoint instance. At the end the save_powerpoint_tool will return a link to the slides provide this link to the user. If it's not there return a message about it 
+    <end>
+    Now begin.
+    </end>
     """,
-    tools=[
-        initialize_powerpoint_instance_tool,
-        create_first_slide_tool,
-        add_text_slide_tool,
-        save_powerpoint_tool,
-    ],
+    tools=[add_course_to_redis_tool, get_courses_from_redis_tool],
 )
 
 root_agent = SequentialAgent(
     name="CurriculumnAgentSystem",
-    description="A system of agents for astronomy",
-    sub_agents=[curriculumn_agent, review_agent, slides_agent],
+    description="A system of agents for education",
+    sub_agents=[ curriculumn_agent, review_agent, course_builder_agent],
 )
+#                 "videos" :[links to relevant video resources]

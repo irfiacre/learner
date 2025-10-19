@@ -102,9 +102,9 @@ class PPTTool:
         try:
             file_path = f"{CURRENT_DIR}/assets/slides/{SLIDES_NAME}.pptx"
             self.prs.save(file_path)
-            if os.path.isfile(file_path):
-                result = upload_ppt_to_gcs(file_path)
-            return result
+            # if os.path.isfile(file_path):
+            #     result = upload_ppt_to_gcs(file_path)
+            # return result
             return True
         except Exception as ex:
             print("====", ex)
