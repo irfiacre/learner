@@ -129,3 +129,17 @@ export async function waitForBackend(
   console.error("Backend failed to start within the specified time");
   return false;
 }
+
+export async function getCourseData(): Promise<Response> {
+  const response = await fetch("/api/data");
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to send message: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const result = await response.json();
+
+  return result;
+}

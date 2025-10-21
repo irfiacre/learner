@@ -4,14 +4,23 @@ import { useSession } from "@/hooks/useSession";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ANONYMOUS_USER } from "@/constants";
+// import { getGeneratedCourses } from "@/services/services";
+import { getCourseData } from "@/lib/api";
 
 export default function Home() {
-  const { handleCreateNewSession, sessionId, handleUserIdChange } = useSession();
+  const { handleCreateNewSession, sessionId, handleUserIdChange } =
+    useSession();
+  const [courses, setCourses] = useState<unknown>([]);
+
   useEffect(() => {
-    let result;
     (async () => {
       handleUserIdChange(ANONYMOUS_USER);
-      await handleCreateNewSession(ANONYMOUS_USER, `/apps/beginner_agent/users/${ANONYMOUS_USER}/sessions`);
+      await handleCreateNewSession(
+        ANONYMOUS_USER,
+        `/apps/beginner_agent/users/${ANONYMOUS_USER}/sessions`
+      );
+      const result: unknown = await getCourseData();
+      setCourses(result);
     })();
   }, []);
 
@@ -21,8 +30,6 @@ export default function Home() {
     answer,
     sendMessageAndWaitForAnswer,
   } = useBeginnerAnswer();
-
-  
 
   const [textInput, setTextInput] = useState<string>("");
   const [links, setLinks] = useState<string[]>([""]);
@@ -62,7 +69,7 @@ export default function Home() {
 
   const unitOptions = selectedCourse ? unitOptionsMap[selectedCourse] : [];
 
-  const handleFormSubmit =async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     console.log(
@@ -81,12 +88,13 @@ export default function Home() {
         ANONYMOUS_USER,
         sessionId
       );
-      console.log("---->", agentOutput);
-      
+      // console.log("---->", agentOutput);
     } catch (error) {
       console.log(error);
     }
   };
+
+  console.log("==========", courses);
 
   return (
     <div className="min-h-screen flex flex-col items-start">

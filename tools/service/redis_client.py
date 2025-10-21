@@ -13,21 +13,20 @@ class RedisCourseClient:
             host=self.redis_host, port=port, db=db, decode_responses=True
         )
 
-    def add_course(self, course: Dict[str, Any]) -> Dict[str, Any]:
+    def add_course(self, course_item: str):
         """
-        Adds a course object (JSON-serializable dict) to Redis.
+        Adds a course object to Redis.
 
         Args:
-            course (dict): JSON object describing the course.
-        Returns:
-            dict: result with status and meta information.
+            course_item (str): JSON string describing the course.
         """
-        print("========== ======= ADDING COURSE:", course)
+        import json
+        
+        course = json.loads(course_item)        
         courses = self.redis_client.get("courses")
-        courses = ast.literal_eval(courses) if courses else []
-        courses.append(course)
-        self.redis_client.set("courses", str(courses))
-        return {"status": "success", "courses_count": len(courses)}
+        courses = json.loads(courses) if courses else []
+        courses.append(course)        
+        self.redis_client.set("courses", json.dumps(courses))
 
     def get_courses(self):
         """
@@ -36,8 +35,9 @@ class RedisCourseClient:
         Returns:
             List of all courses
         """
+        import json
         courses = self.redis_client.get("courses")
-        courses = ast.literal_eval(courses) if courses else []
+        courses = json.loads(courses) if courses else []
         return courses
 
     def delete_all_courses(self):
@@ -45,7 +45,3 @@ class RedisCourseClient:
         Deletes all courses from the Redis caching server.
         """
         self.redis_client.delete("courses")
-
-
-# if __name__=="__main__":
-#     print(redis_course_client.get_courses())

@@ -12,15 +12,15 @@ export const Sidebar = () => {
       {
         title: "Curriculum",
         subtitle: "Dive Into Curriculum",
-        url: "",
+        url: "/",
         icon: "ph:exam-bold",
       },
     ],
     sections: [
       {
-        title: "Exams Setting",
+        title: "Courses",
         subtitle: "Dive into Exams Setting",
-        url: "exams",
+        url: "courses",
         icon: "ri:book-read-fill",
       }
     ],

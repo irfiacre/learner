@@ -25,6 +25,10 @@ curriculumn_agent = Agent(
     </inputFormat>
 
     <rules>
+    - At the end find relevant youtube videos and add them. Use the following guide:
+        * Each chapter must have at least 1 video, but if it is not possible to get it, ignore it.
+        * When getting the videos the priority should be relevance, then like count, and lastly short-form content over long-form content.
+        * The list of all videos should be added at the end of each curriculum.
     - Use ONLY the Rwandan curriculum approach (Competency-Based Curriculum - CBC).
     - DO NOT greet the user.
     - DO NOT ask questions.
@@ -47,7 +51,7 @@ curriculumn_agent = Agent(
         "chapters": [
             {
             "title": "Chapter Title",
-            "content": ["Bullet point 1", "Bullet point 2"],
+            "content": ["Point 1", "Point 2"],
             "activities": ["Group experiment", "Class discussion"],
             "assessment": ["Quiz", "Peer evaluation"]
             }
@@ -119,6 +123,7 @@ review_agent = Agent(
     """,
     output_key="final_curriculumn",
 )
+# (final_curriculumn)
 
 course_builder_agent = Agent(
     name="CourseBuilder",
@@ -127,35 +132,33 @@ course_builder_agent = Agent(
     generate_content_config=types.GenerateContentConfig(temperature=0.2),
     instruction="""
     <role>
-    You are a professional curriculumn developer.
+    You are a professional curriculum developer.
     </role>
+
     <task>
-    Your task is to take the curriculum provided in <input>(final_curriculumn)</input> and convert it develop it according to the rules below:
+    Your task is to take the curriculum provided in <input>(user_curriculum)</input> and develop it according to the rules below.
     </task>
+
     <rules>
         <functional>
-        - Develop each content of the curriculumn (to the point where a student can understand the concept fully).
-        - At the end of course find relevant youtube videos and add them. Use the following guide:
-          * Each chapter must have atleast 3 videos.
-          * When getting the videos the priority should be relevance, then like count, and lastly shortform content over long form content.
-          * The list of all videos should be added at the end of each curriculumn.
-        - The output should be an improved version of the curriculumn, but it should have a common schema to it.
-        </functional>
+        - Develop each content of the curriculum (to the point where a student can understand the concept fully).
+        - The output should be an improved version of the curriculum with a consistent schema.
+        - Do not touch the videos.
+        </functional> 
         <nonFunctional>
         - Do NOT ask questions.
         - Do NOT explain what you're doing.
-        - Do NOT output text responses.
-        - Use the tools give not you to carry out the task:
+        - Use the tools given to you to carry out the task:
             <tools>
-                1. add_course_to_redis_tool: A fuction that before use you must have the course full prepared and then give it the output to save store the course.
-                2. get_courses_from_redis_tool: An async method that returns all the courses added to our redis caching database.
+                1. add_course_to_redis_tool: Pass the complete course as a JSON string. Ensure the course is fully prepared before calling this tool.
+                2. get_courses_from_redis_tool: Returns all courses from the Redis database.
                 <usage>
-                    Always use the tool "add_course_to_redis_tool" at the end after developing the curriculumn, you have to pass it the resulting json object.
+                    Always use "add_course_to_redis_tool" at the end after developing the curriculum.
+                    Convert the course object to a JSON string before passing it to the tool.
                 </usage>
             </tools>
         </nonFunctional>  
     </rules>
-
     <end>
     Now begin.
     </end>
@@ -166,6 +169,5 @@ course_builder_agent = Agent(
 root_agent = SequentialAgent(
     name="CurriculumnAgentSystem",
     description="A system of agents for education",
-    sub_agents=[ curriculumn_agent, review_agent, course_builder_agent],
+    sub_agents=[ curriculumn_agent, course_builder_agent],
 )
-#                 "videos" :[links to relevant video resources]
