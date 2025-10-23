@@ -45,3 +45,9 @@ class RedisCourseClient:
         Deletes all courses from the Redis caching server.
         """
         self.redis_client.delete("courses")
+
+# if __name__=="__main__":
+#     redis_course_client = RedisCourseClient()
+#     # redis_course_client.add_course({"xx": "yy"})
+#     print("---",redis_course_client.get_courses())
+#     redis_course_client.delete_all_courses()

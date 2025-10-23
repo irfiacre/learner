@@ -38,7 +38,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <div className="flex flex-row">
-            <div className={`${isActive ? "w-3/4" : "md:w-2/6"}`}>
+            <div className={`${isActive ? "w-3/4 fixed z-10" : "md:w-2/6"}`}>
               <button
                 type="button"
                 className="md:hidden inline-flex items-center p-2 mt-2 ms-3 text-sm text-primary rounded-lg bg-gray-100 fixed z-10"
@@ -63,8 +63,8 @@ export default function RootLayout({
                 <Sidebar />
               </div>
             </div>
-            <main className="w-full p-6 mt-8">
-              <div>{children}</div>
+            <main>
+              <div className="">{children}</div>
             </main>
           </div>
           <Toaster />

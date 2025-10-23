@@ -124,7 +124,7 @@ const ProjectileMotionTopics = ({
                       ))}
                     </ul>
                   </div>
-                  {topic.videos.length > 0 && (
+                  {topic?.videos?.length > 0 && (
                     <div className="mb-1">
                       <h4 className="font-semibold">Videos:</h4>
                       <ul className="list-disc ml-6">

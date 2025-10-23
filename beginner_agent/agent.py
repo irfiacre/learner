@@ -26,6 +26,7 @@ curriculumn_agent = Agent(
 
     <rules>
     - At the end find relevant youtube videos and add them. Use the following guide:
+        * Make very sure that the videos you get exist and can be viewed.
         * Each chapter must have at least 1 video, but if it is not possible to get it, ignore it.
         * When getting the videos the priority should be relevance, then like count, and lastly short-form content over long-form content.
         * The list of all videos should be added at the end of each curriculum.
@@ -148,6 +149,7 @@ course_builder_agent = Agent(
         <nonFunctional>
         - Do NOT ask questions.
         - Do NOT explain what you're doing.
+        - Instead of using stars or markdown for formating use html synthax for formatting, but make sure the overall resulting format is a valid json.
         - Use the tools given to you to carry out the task:
             <tools>
                 1. add_course_to_redis_tool: Pass the complete course as a JSON string. Ensure the course is fully prepared before calling this tool.

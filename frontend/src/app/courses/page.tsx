@@ -24,8 +24,6 @@ export default function CoursesPage() {
       }
     })();
   }, []);
-  
-  console.log("=====>", courses);
 
   return (
     <div className="min-h-screen flex flex-col items-center">

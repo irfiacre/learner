@@ -32,7 +32,7 @@ export const Sidebar = () => {
     setSearchText(e.target.value);
   };
   return (
-    <div className="bg-sidebar_background px-6 py-9 h-lvh flex flex-col gap-6">
+    <div className="fixed bg-sidebar_background px-6 py-9 h-lvh flex flex-col gap-6">
       <div>
         <LogoComponent small />
         <div className="py-3.5">

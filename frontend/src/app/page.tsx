@@ -34,33 +34,16 @@ export default function Home() {
   const [textInput, setTextInput] = useState<string>("");
   const [links, setLinks] = useState<string[]>([""]);
   const [attachments, setAttachments] = useState<(File | null)[]>([null]);
-  const courseOptions = [
-    { value: "math", label: "Mathematics" },
-    { value: "science", label: "Science" },
-    { value: "history", label: "History" },
-    { value: "english", label: "English" },
-  ];
+  const courseOptions = [{ value: "physics", label: "Physics" }];
 
   const unitOptionsMap: Record<string, { value: string; label: string }[]> = {
-    math: [
-      { value: "algebra", label: "Algebra" },
-      { value: "geometry", label: "Geometry" },
-      { value: "calculus", label: "Calculus" },
-    ],
-    science: [
-      { value: "physics", label: "Physics" },
-      { value: "chemistry", label: "Chemistry" },
-      { value: "biology", label: "Biology" },
-    ],
-    history: [
-      { value: "ancient", label: "Ancient History" },
-      { value: "medieval", label: "Medieval History" },
-      { value: "modern", label: "Modern History" },
-    ],
-    english: [
-      { value: "literature", label: "Literature" },
-      { value: "grammar", label: "Grammar" },
-      { value: "writing", label: "Writing" },
+    physics: [
+      {
+        value: "The kinetic model of matter",
+        label: "The kinetic model of matter",
+      },
+      { value: "Properties of waves", label: "Properties of waves" },
+      { value: "Static electricity", label: "Static electricity" },
     ],
   };
 
@@ -72,38 +55,33 @@ export default function Home() {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(
-      "----",
-      selectedCourse,
-      selectedUnit,
-      textInput,
-      links,
-      attachments
-    );
+    const prompt = `
+    <role>I am an experienced teacher in the course of ${selectedCourse}.</role>
+    <task>I want you to help me develop a study material unit: ${selectedUnit}</task>
+    <instructions>
+    <rules> ${textInput}</rules>
+    ${
+      links ??
+      `<context> Use the following links in your search:${links.map(
+        (link: string) => `- "${link}"`
+      )}</context>`
+    }`;
 
     try {
-      const agentOutput = await sendMessageAndWaitForAnswer(
-        `Hi, For context find this course: ${selectedCourse}, and the unit: ${selectedUnit}, Links: ${links}`,
+      await sendMessageAndWaitForAnswer(
+        prompt,
         "beginner_agent",
         ANONYMOUS_USER,
         sessionId
       );
-      // console.log("---->", agentOutput);
     } catch (error) {
       console.log(error);
     }
   };
 
-  console.log("==========", courses);
-
   return (
-    <div className="min-h-screen flex flex-col items-start">
-      <motion.div
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-center space-y-4 w-full"
-      >
+    <div className="min-h-screen flex flex-col items-center md:w-96">
+      <div className="text-center space-y-4 w-full">
         <div className="flex flex-col items-start w-full">
           <label
             htmlFor="course-name-select"
@@ -156,12 +134,7 @@ export default function Home() {
           </select>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mb-12"
-        >
+        <div className="mb-12">
           <form
             className="w-full mx-auto flex flex-col gap-4 bg-white p-6 rounded-lg shadow border border-gray-200"
             onSubmit={handleFormSubmit}
@@ -346,8 +319,8 @@ export default function Home() {
               Generate
             </button>
           </form>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 // import "react-multi-carousel/lib/styles.css";
 import Link from "next/link";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -53,7 +53,7 @@ const EventPage = ({ user }: { user: any }) => {
   const course = courses[0] ?? {};
 
   return (
-    <div>
+    <div className="p-5">
       <div>
         <div className="inline-flex items-center p-2 text-sm font-medium text-center text-textLightColor bg-inherit rounded-full hover:bg-primary hover:text-white focus:outline-none cursor-pointer">
           <Link href="">
@@ -61,7 +61,7 @@ const EventPage = ({ user }: { user: any }) => {
           </Link>
         </div>
       </div>
-      <BaseCard className="px-10 py-10 text-textDarkColor space-y-5">
+      <BaseCard className="p-2 text-textDarkColor space-y-5">
         <div>
           {/* {open && (
           <ConfirmModel
