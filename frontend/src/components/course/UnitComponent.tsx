@@ -1,5 +1,5 @@
-import React,{ useState } from "react";
-
+import React, { useState } from "react";
+import BaseButton from "../BaseButton";
 
 type TopicVideo = { title: string; url: string };
 type TopicData = {
@@ -30,7 +30,9 @@ function formatContent(content: string[]) {
               {item
                 .replace(/^(\s*[-*]+\s*)/, "")
                 .replace(/\*\*(.*?)\*\*/g, (m, c) => <b>{c}</b>)
-                .replace(/`([^`]+)`/g, (m, c) => <code>{c}</code>)}
+                .replace(/`([^`]+)`/g, (m, c) => (
+                  <code>{c}</code>
+                ))}
             </li>
           );
         }
@@ -54,9 +56,11 @@ function formatContent(content: string[]) {
   );
 }
 
-const ProjectileMotionTopics = ({
+const TopicBreakDown = ({
   projectileMotionData,
-}: { projectileMotionData: TopicData[] }) => {
+}: {
+  projectileMotionData: TopicData[];
+}) => {
   // Use state to track which topics are open (using topic index for uniqueness)
   const [openTopics, setOpenTopics] = useState<{ [key: number]: boolean }>({});
 
@@ -89,25 +93,32 @@ const ProjectileMotionTopics = ({
                   cursor: "pointer",
                 }}
               >
-                <span className="text-lg font-semibold">
-                  {topic.title}
-                </span>
+                <span className="text-lg font-semibold">{topic.title}</span>
                 <span className="ml-4">
                   {isOpen ? (
-                    <svg width={16} height={16} viewBox="0 0 20 20"><path d="M5 12l5-5 5 5" stroke="currentColor" strokeWidth="2" fill="none" /></svg>
+                    <svg width={16} height={16} viewBox="0 0 20 20">
+                      <path
+                        d="M5 12l5-5 5 5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        fill="none"
+                      />
+                    </svg>
                   ) : (
-                    <svg width={16} height={16} viewBox="0 0 20 20"><path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="2" fill="none" /></svg>
+                    <svg width={16} height={16} viewBox="0 0 20 20">
+                      <path
+                        d="M5 8l5 5 5-5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        fill="none"
+                      />
+                    </svg>
                   )}
                 </span>
               </button>
               {isOpen && (
-                <div
-                  id={`topic-content-${idx}`}
-                  className="px-6 pb-4"
-                >
-                  <div className="mb-4">
-                    {formatContent(topic.content)}
-                  </div>
+                <div id={`topic-content-${idx}`} className="px-6 pb-4">
+                  <div className="mb-4">{formatContent(topic.content)}</div>
                   <div className="mb-4">
                     <h4 className="font-semibold">Activities:</h4>
                     <ul className="list-disc ml-6">
@@ -123,6 +134,13 @@ const ProjectileMotionTopics = ({
                         <li key={asi}>{as}</li>
                       ))}
                     </ul>
+                    <BaseButton
+                      handleSubmit={() =>
+                        console.log("should generate something")
+                      }
+                    >
+                      Generate Quiz
+                    </BaseButton>
                   </div>
                   {topic?.videos?.length > 0 && (
                     <div className="mb-1">
@@ -153,10 +171,7 @@ const ProjectileMotionTopics = ({
   );
 };
 
-export { ProjectileMotionTopics };
-
-
-
+export { TopicBreakDown };
 
 const UnitComponent = ({ content }: { content: object }) => {
   console.log("-----", content);
@@ -166,7 +181,9 @@ const UnitComponent = ({ content }: { content: object }) => {
       <h3 className="text-xl font-bold text-primary mb-4">{content.title}</h3>
       <div className="flex flex-col md:flex-row items-start justify-between mb-4 gap-8">
         <div className="w-full md:w-1/2">
-          <h4 className="text-lg font-semibold mb-2 text-gray-700">Competencies</h4>
+          <h4 className="text-lg font-semibold mb-2 text-gray-700">
+            Competencies
+          </h4>
           <ul className="list-disc ml-6 space-y-1">
             {content.competencies.map((competency: string) => (
               <li key={competency} className="text-gray-600">
@@ -176,7 +193,9 @@ const UnitComponent = ({ content }: { content: object }) => {
           </ul>
         </div>
         <div className="w-full md:w-1/2">
-          <h4 className="text-lg font-semibold mb-2 text-gray-700">Learning Outcomes</h4>
+          <h4 className="text-lg font-semibold mb-2 text-gray-700">
+            Learning Outcomes
+          </h4>
           <ul className="list-disc ml-6 space-y-1">
             {content.learning_outcomes.map((outcome: string) => (
               <li key={outcome} className="text-gray-600">
@@ -188,9 +207,11 @@ const UnitComponent = ({ content }: { content: object }) => {
       </div>
 
       <div>
-        <span className="block text-lg font-semibold mb-2 text-gray-700">Chapters</span>
+        <span className="block text-lg font-semibold mb-2 text-gray-700">
+          Chapters
+        </span>
         <div>
-          <ProjectileMotionTopics projectileMotionData={content?.chapters} />
+          <TopicBreakDown projectileMotionData={content?.chapters} />
         </div>
       </div>
     </div>
