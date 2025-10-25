@@ -3,16 +3,13 @@ import React from "react";
 const BaseCard = ({
   children,
   className,
-  onClick,
 }: {
-  children: React.ReactNode;
+  children: any;
   className?: string; // For tailwind additional styles
-  onClick?: () => void;
 }) => {
   return (
     <div
-      className={`w-full bg-white border border-backgroundColor2 rounded-xl ${className}`}
-      onClick={onClick}
+      className={`w-full bg-white border border-backgroundColor2 rounded-lg ${className}`}
     >
       {children}
     </div>

@@ -22,10 +22,25 @@ const LogoComponent = ({
     fontSize2: small ? 34 : medium ? 48 : 88,
   };
   return (
-    <div className="text-center flex justify-center items-center gap-2 text-white">
+    <div className="flex justify-center align-middle items-center gap-2">
+      <LogoIcon size={logoParams.iconSize} />
       <div>
-        <h1 style={{ fontSize: logoParams.fontSize1 }}>Toefl</h1>
-        <h1 style={{ fontSize: logoParams.fontSize2, fontWeight:"bold" }}>Practice</h1>
+        <h1
+          className="font-bold text-primary"
+          style={{ fontSize: logoParams.fontSize1 }}
+        >
+          Driver
+        </h1>
+        <h1
+          className={poppins.className}
+          style={{
+            fontSize: logoParams.fontSize2,
+            color: primaryColor,
+            lineHeight: 1,
+          }}
+        >
+          Hub
+        </h1>
       </div>
     </div>
   );

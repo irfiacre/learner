@@ -5,7 +5,7 @@ function LogoIcon({ size, color }: { size?: number; color?: string }) {
   return (
     <div
       className="bg-primary p-2 rounded-md"
-      style={{ background_color: color }}
+      style={{ backgroundColor: color }}
     >
       <Icon
         icon="healthicons:truck-driver"
