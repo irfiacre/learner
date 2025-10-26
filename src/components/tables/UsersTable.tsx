@@ -5,12 +5,11 @@ import SearchableInput from "../inputs/SearchInput";
 import Image from "next/image";
 import Pagination from "./Pagination";
 import Link from "next/link";
-import CreateUser from "@/src/views/forms/CreateUser";
 import BaseModel from "../models/BaseModel";
 import { addUser } from "@/services/firebase/authentication";
 import { DEFAULT_PASSWORD, USER_DOC_ID } from "@/constants/fixtures";
 import { createDocEntry } from "@/services/firebase/helpers";
-import { STAFF_COLLECTION_NAME } from "@/constants/collectionNames";
+import { EXAM_COLLECTION_NAME } from "@/constants/collectionNames";
 import { Flip, toast } from "react-toastify";
 
 const UsersTable = ({ data }: { data: Array<any> }) => {
@@ -81,7 +80,7 @@ const UsersTable = ({ data }: { data: Array<any> }) => {
       };
 
       const staffAdded = await createDocEntry(
-        STAFF_COLLECTION_NAME,
+        EXAM_COLLECTION_NAME,
         staffFormat
       );
 
@@ -113,8 +112,9 @@ const UsersTable = ({ data }: { data: Array<any> }) => {
             onClose={handleCloseModel}
             containerStyle="w-4/5 p-10"
           >
-            <div className="">
-              <CreateUser onFormSubmit={handleCreatePlan} />
+            <div>
+              <span>Create User Form</span>
+              {/* <CreateUser onFormSubmit={handleCreatePlan} /> */}
             </div>
           </BaseModel>
         )}

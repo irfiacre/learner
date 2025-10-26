@@ -5,13 +5,8 @@ import BaseCard from "../cards/BaseCard";
 import SearchableInput from "../inputs/SearchInput";
 import Pagination from "./Pagination";
 import Link from "next/link";
-import BaseModel from "../models/BaseModel";
-import CreateOnboardingPlan from "@/src/views/forms/ExamDescriptionForm";
 import { Icon } from "@iconify/react";
-import {
-  COURSES_COLLECTION,
-  RECOMMENDED_COURSES_COLLECTION,
-} from "@/constants/collectionNames";
+import { EXAM_COLLECTION_NAME } from "@/constants/collectionNames";
 import { toast } from "react-toastify";
 import { generateId } from "@/util/helpers";
 import {
@@ -72,11 +67,11 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
 
       const courseAdded = editValues.title
         ? await updateDocEntry(
-            COURSES_COLLECTION,
+            EXAM_COLLECTION_NAME,
             courseFormat.id,
             courseFormat
           )
-        : await createDocEntry(COURSES_COLLECTION, courseFormat);
+        : await createDocEntry(EXAM_COLLECTION_NAME, courseFormat);
       if (courseAdded) {
         toast.success("Course Created", {
           hideProgressBar: true,
@@ -106,7 +101,7 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
     });
   };
   const handleDelete = async (course: any) => {
-    const deleted = await deleteDocEntryById(COURSES_COLLECTION, course.id);
+    const deleted = await deleteDocEntryById(EXAM_COLLECTION_NAME, course.id);
     if (deleted) {
       toast.success(`${course.title} is Deleted`, {
         hideProgressBar: true,
@@ -117,7 +112,7 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
   };
   const handleRecommendCourse = async (course: any) => {
     const findRecommended = await await findDocEntryByField(
-      RECOMMENDED_COURSES_COLLECTION,
+      EXAM_COLLECTION_NAME,
       "id",
       course.id
     );
@@ -127,12 +122,9 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
       ...course,
       recommended: true,
     };
-    await updateDocEntry(COURSES_COLLECTION, courseFormat.id, courseFormat);
+    await updateDocEntry(EXAM_COLLECTION_NAME, courseFormat.id, courseFormat);
 
-    const recommended = await createDocEntry(
-      RECOMMENDED_COURSES_COLLECTION,
-      course
-    );
+    const recommended = await createDocEntry(EXAM_COLLECTION_NAME, course);
 
     if (recommended) {
       toast.success(`Course "${course.title}" Is successfully recommended.`, {
@@ -150,24 +142,6 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
         onInputChange={handleSidebarSearch}
         inputClassName="rounded-md"
       />
-      {openModel && (
-        <BaseModel
-          title={
-            editValues.title ? `Edit (${editValues.title})` : "Create Course"
-          }
-          onClose={handleCloseModel}
-          containerStyle="w-4/5 p-10"
-        >
-          <div className="">
-            <CreateOnboardingPlan
-              onFormSubmit={handleAddCourse}
-              defaultDescription={editValues.description}
-              defaultTitle={editValues.title}
-              loading={loading}
-            />
-          </div>
-        </BaseModel>
-      )}
       <div className="py-5 text-textLightColor text-base font-semibold flex flex-row justify-between items-center">
         <span>Total = {data.length}</span>
         <button
@@ -180,8 +154,7 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
       </div>
       <div className="py-2.5 text-textLightColor text-base font-semibold flex flex-row align-middle items-center px-1.5 gap-3.5 cursor-pointer bg-backgroundColor">
         <span className="w-full">Title</span>
-        <span className="w-full">Description</span>
-        <span className="w-2/4">Materials</span>
+        <span className="w-full">Number of Questions</span>
         <span className="w-2/4">Actions</span>
       </div>
       <hr />
@@ -191,57 +164,26 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
             <div className="flex flex-row align-middle items-center py-2.5 px-1.5 gap-1.5 cursor-pointer hover:bg-backgroundColor">
               <div className="w-full">
                 <Link
-                  href={`/courses/${item.id}`}
+                  href={`/exams/${item.id}`}
                   className="flex gap-2 items-center"
                 >
-                  {item.thumbnail?.url ? (
-                    <img
-                      src={item.thumbnail.url}
-                      alt="Thumbnail"
-                      height={"80px"}
-                      width={"80px"}
-                      className="rounded-md"
-                    />
-                  ) : (
-                    ""
-                  )}
-                  <span>{item.title}</span>
+                  <span>{item.id}</span>
                 </Link>
               </div>
               <div className="text-sm w-full">
-                <Link href={`/courses/${item.id}`}>
+                <Link href={`/exams/${item.id}`}>
                   <span className="text-textLightColor font-light">
-                    {item.description.substring(0, 50)}
+                    {item.result?.length}
                   </span>
                 </Link>
               </div>
               <div className="w-2/4">
-                <Link href={`/courses/${item.id}`}>
-                  <span>{item.courses}</span>
-                </Link>
-              </div>
-              <div className="w-2/4">
-                <button
-                  className="inline-flex self-center items-center p-2 text-sm font-medium text-center text-textLightColor bg-inherit rounded-full hover:bg-textDarkColor hover:text-white focus:outline-none"
-                  type="button"
-                  onClick={() => handleEditCourse(item)}
-                >
-                  <Icon icon="tabler:edit" fontSize={20} />
-                </button>{" "}
                 <button
                   className="inline-flex self-center items-center p-2 text-sm font-medium text-center text-red-600 bg-inherit rounded-full hover:bg-red-600 hover:text-white focus:outline-none"
                   type="button"
                   onClick={() => handleDelete(item)}
                 >
                   <Icon icon="mdi:delete" fontSize={20} />
-                </button>
-                <button
-                  className="inline-flex self-center items-center p-2 -mt-5 text-sm font-light text-center text-textLightColor bg-inherit rounded-full hover:underline disabled:text-successGreen"
-                  type="button"
-                  onClick={() => handleRecommendCourse(item)}
-                  disabled={item.recommended}
-                >
-                  {item.recommended ? "Recommended" : "Recommend"}
                 </button>
               </div>
             </div>

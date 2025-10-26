@@ -6,7 +6,7 @@ import {
   getCollectionEntries,
   subscribeToCollection,
 } from "@/services/firebase/helpers";
-import { COURSES_COLLECTION } from "@/constants/collectionNames";
+import { EXAM_COLLECTION_NAME } from "@/constants/collectionNames";
 import Loading from "@/src/components/LoadingComponent";
 
 const Courses = () => {
@@ -15,7 +15,7 @@ const Courses = () => {
 
   const initialFindApplications = async () => {
     setLoading(true);
-    const result = await getCollectionEntries(COURSES_COLLECTION);
+    const result = await getCollectionEntries(EXAM_COLLECTION_NAME);
     setData(result);
     setLoading(false);
   };
@@ -25,10 +25,10 @@ const Courses = () => {
 
   useEffect(() => {
     initialFindApplications();
-    return () => subscribeToCollection(COURSES_COLLECTION, handleOnUpdateData);
-  }, []);
+    return () => subscribeToCollection(EXAM_COLLECTION_NAME, handleOnUpdateData);
+  }, []);  
 
   return <div>{loading ? <Loading /> : <CoursesTable data={data} />}</div>;
 };
 
-export default isAuth(Courses);
+export default (Courses);

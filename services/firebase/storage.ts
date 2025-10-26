@@ -5,7 +5,7 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
-import { DOCUMENTS_COLLECTION } from "@/constants/collectionNames";
+import { EXAM_COLLECTION_NAME } from "@/constants/collectionNames";
 import { app } from "@/util/firebase";
 
 export const storage = getStorage(app);
@@ -38,7 +38,7 @@ export const uploadFile = async (
             name: fileName,
             type: fileType,
           };
-          const docRef = doc(database, DOCUMENTS_COLLECTION, fileMetadata.id);
+          const docRef = doc(database, EXAM_COLLECTION_NAME, fileMetadata.id);
           await setDoc(docRef, fileMetadata);
           onGotDownloadUrl(fileMetadata);
           return fileMetadata;

@@ -1,14 +1,10 @@
+import React, { useEffect, useState } from "react";
 import { getAllStaff } from "@/services/firebase/authentication";
-import React, { useEffect, useState, useRef } from "react";
 import {
   getCollectionEntries,
   subscribeToCollection,
 } from "@/services/firebase/helpers";
-import { APPLICATIONS_COLLECTION } from "@/constants/collectionNames";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import { PulseLoader } from "react-spinners";
+import { EXAM_COLLECTION_NAME } from "@/constants/collectionNames";
 import ExamDescriptionForm from "../../forms/ExamDescriptionForm";
 
 const DashboardPage = () => {
@@ -21,16 +17,12 @@ const DashboardPage = () => {
 
   const [allStaff, setStaff] = useState([]);
   const [user, setUser] = useState<any>(null);
-  const [generating, setGenerating] = useState(false);
-  const [dateRange, setDateRange] = useState<any>({
-    startDate: new Date().setMonth(new Date().getMonth() - 1),
-    endDate: new Date(),
-  });
+
   const [loading, setLoading] = useState(false);
 
   const initialFindApplications = async () => {
     setLoading(true);
-    const result = await getCollectionEntries(APPLICATIONS_COLLECTION);
+    const result = await getCollectionEntries(EXAM_COLLECTION_NAME);
     setData(result);
     setLoading(false);
   };
@@ -53,71 +45,13 @@ const DashboardPage = () => {
   useEffect(() => {
     initialFindApplications();
     return () =>
-      subscribeToCollection(APPLICATIONS_COLLECTION, handleOnUpdateData);
+      subscribeToCollection(EXAM_COLLECTION_NAME, handleOnUpdateData);
   }, []);
-
-  const componentRef = useRef<HTMLDivElement>(null);
-
-  const generateReport = () => {
-    setGenerating(true);
-    const input = componentRef.current;
-    if (input) {
-      input.style.visibility = "visible";
-      html2canvas(input, { scale: 5 }).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        const imgWidth = 210;
-        const pageHeight = 297;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        if (imgHeight > pageHeight) {
-          let position = 0;
-          for (let i = 0; i <= 3; i++) {
-            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-            position -= pageHeight;
-            if (heightLeft > 0) {
-              pdf.addPage();
-            }
-          }
-        } else {
-          pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-        }
-        pdf.save(
-          `AnalyticsReport-${dateRange.startDate}-${dateRange.endDate}.pdf`
-        );
-        input.style.visibility = "hidden";
-      });
-    }
-    setGenerating(false);
-  };
 
   const handleFormSubmitted = () => {};
 
   return (
     <div className="flex flex-col gap-5">
-      <button
-        type="button"
-        onClick={() => generateReport()}
-        className="h-12 text-white bg-primary hover:bg-primaryDark focus:outline-none font-medium rounded-lg text-md text-center px-4 flex flex-row items-center justify-center"
-      >
-        {generating ? (
-          <PulseLoader
-            color={"#ffffff"}
-            loading={generating}
-            size={10}
-            cssOverride={{ width: "100%" }}
-            aria-label="Loading Spinner"
-            data-testid="loader"
-            speedMultiplier={0.5}
-          />
-        ) : (
-          <span className="pr-2">Generate Report</span>
-        )}
-        <Icon icon="material-symbols:download" fontSize={24} />
-      </button>
       <div>
         <ExamDescriptionForm onFormSubmit={handleFormSubmitted} />
       </div>

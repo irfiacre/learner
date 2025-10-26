@@ -1,159 +1,137 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { COURSES_ARRAY, PLACEHOLDER_IMG } from "@/constants/fixtures";
-import Course from "@/src/components/Course";
+import React, { useEffect, useRef, useState } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { PulseLoader } from "react-spinners";
 import BaseCard from "@/src/components/cards/BaseCard";
-import SearchableInput from "@/src/components/inputs/SearchInput";
-import { Icon } from "@iconify/react";
-import { formatDate } from "@/util/helpers";
-import isAuth from "@/src/components/isAuth";
-import { useParams, useRouter } from "next/navigation";
-import {
-  deleteDocEntryById,
-  subscribeToDocument,
-  updateDocEntry,
-} from "@/services/firebase/helpers";
-import { COURSES_COLLECTION } from "@/constants/collectionNames";
-import AddMaterial from "@/src/components/course/AddMaterial";
-import CourseMaterial from "@/src/components/course/CourseMaterial";
-import { toast } from "react-toastify";
+import { useParams } from "next/navigation";
+import { subscribeToDocument } from "@/services/firebase/helpers";
+import { EXAM_COLLECTION_NAME } from "@/constants/collectionNames";
 import Loading from "@/src/components/LoadingComponent";
-import Image from "next/image";
-import UpdateThumbnail from "@/src/components/course/UpdateThumbnail";
+import QuestionComponent from "@/src/components/questions/QuestionComponent";
+import { QuestionInterface } from "@/agents/assessment";
+import ReportTemplate from "@/src/components/report/Template";
 
 const CourseDetails = () => {
   const params = useParams();
-  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedMaterial, setSelectedMaterial] = useState({});
-  const [course, setCourse] = useState<any>({});
+  const [exam, setExam] = useState<any>({});
+  const [generating, setGenerating] = useState(false);
+  const [dateRange, setDateRange] = useState<any>({
+    startDate: new Date().setMonth(new Date().getMonth() - 1),
+    endDate: new Date(),
+  });
 
   const handleOnUpdateData = (newChanges: any) => {
-    setCourse(newChanges);
+    setExam(newChanges);
     setLoading(false);
   };
   useEffect(() => {
     return () =>
       subscribeToDocument(
-        COURSES_COLLECTION,
+        EXAM_COLLECTION_NAME,
         handleOnUpdateData,
         params.id.toLocaleString()
       );
   }, [params.id]);
 
-  const handleSubmitMaterial = async (materialData: any) => {
-    const newCourseInfo = {
-      ...course,
-      materials: course.materials
-        ? [...course.materials, materialData]
-        : [materialData],
-    };
-    const courseUpdated = await updateDocEntry(
-      COURSES_COLLECTION,
-      params.id.toLocaleString(),
-      newCourseInfo
-    );
-    if (courseUpdated) {
-      toast.success("Material Added Successfully", {
-        hideProgressBar: true,
-        closeOnClick: true,
-        autoClose: 5000,
-      });
-    }
-  };
   const handleMaterialClick = (material: any) => setSelectedMaterial(material);
-  const handleSecondaryBtn = async (condition: string) => {
-    switch (condition) {
-      case "delete":
-        const deleted = await deleteDocEntryById(
-          COURSES_COLLECTION,
-          params.id.toLocaleString()
-        );
-        if (deleted) {
-          router.back();
-        }
-        break;
-      default:
-        console.log("Handle mark ready");
-        break;
-    }
-  };
 
-  const handleUpdateThumbnail = async (thumbnail: any) => {
-    const newCourseInfo = { ...course, thumbnail };
-    const courseUpdated = await updateDocEntry(
-      COURSES_COLLECTION,
-      params.id.toLocaleString(),
-      newCourseInfo
-    );
-    if (!courseUpdated) {
-      toast.error("Could not add thumbnail", {
-        hideProgressBar: true,
-        closeOnClick: true,
-        autoClose: 3000,
+  const componentRef = useRef<HTMLDivElement>(null);
+
+  const generateReport = () => {
+    setGenerating(true);
+    const input = componentRef.current;
+    if (input) {
+      input.style.visibility = "visible";
+      html2canvas(input, { scale: 5 }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "mm", "a4");
+        const imgWidth = 210;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        if (imgHeight > pageHeight) {
+          let position = 0;
+          for (let i = 0; i <= 3; i++) {
+            pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+            position -= pageHeight;
+            if (heightLeft > 0) {
+              pdf.addPage();
+            }
+          }
+        } else {
+          pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+        }
+        pdf.save(`Exam-${dateRange.startDate}-${dateRange.endDate}.pdf`);
+        input.style.visibility = "hidden";
       });
     }
+    setGenerating(false);
   };
 
   return (
     <div>
       <BaseCard className="px-10 py-10">
-        {!course?.title ? (
+        {!exam?.id ? (
           <Loading />
         ) : (
           <div className="flex flex-row max-md:flex-col max-md:divide-y-2 md:divide-x-2 text-textDarkColor">
-            <div className="w-3/5 pr-5 max-md:w-full">
-              <div className="w-full">
-                <UpdateThumbnail
-                  handleUpdateThumbnail={handleUpdateThumbnail}
-                  thumbnail={course.thumbnail}
+            <div className="w-full max-md:w-full">
+              <button
+                type="button"
+                onClick={() => generateReport()}
+                className="h-12 text-white bg-primary hover:bg-primary/90 focus:outline-none font-medium rounded-lg text-md text-center px-4 flex flex-row items-center justify-center float-right"
+              >
+                {generating ? (
+                  <PulseLoader
+                    color={"#ffffff"}
+                    loading={generating}
+                    size={10}
+                    cssOverride={{ width: "100%" }}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                    speedMultiplier={0.5}
+                  />
+                ) : (
+                  <span className="pr-2">Print Exam</span>
+                )}
+                <Icon
+                  icon="material-symbols:print-outline-rounded"
+                  fontSize={24}
                 />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-lg font-semibold text-textDarkColor">
-                    {course.title}
-                  </h1>
-                  <span className="text-textLightColor/70 text-sm font-light">
-                    Created: {formatDate(course?.createdAt)}
-                  </span>
-                </div>
-                <button
-                  className="inline-flex self-center items-center p-2 text-sm font-medium text-center text-red-600 bg-inherit rounded-full hover:bg-red-600 hover:text-white focus:outline-none"
-                  type="button"
-                  onClick={() => handleSecondaryBtn("delete")}
-                >
-                  <Icon icon="mdi:delete" fontSize={20} />
-                </button>
-              </div>
-
-              <p className="text-sm text-textLightColor py-5">
-                {course.description}
-              </p>
-              <div>
-                <span className="text-base text-textLightColor font-semibold">
-                  Materials
-                </span>
-              </div>
+              </button>
               <div className="py-5">
-                <CourseMaterial
-                  handleMaterialClicked={handleMaterialClick}
-                  data={course.materials || []}
-                />
+                <h1 className="pb-5 text-xl font-semibold">Exam Questions</h1>
+                <div>
+                  {exam.result.map((question: QuestionInterface) => (
+                    <div key={question.question}>
+                      <QuestionComponent
+                        content={question}
+                        handleDeleteQuestion={() => console.log("=======")}
+                      />
+                      <br />
+                      <hr className="py-2 text-primary" />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div className="w-full">
-              <AddMaterial
-                handleSubmitMaterial={handleSubmitMaterial}
-                courseId={params.id.toLocaleString()}
-                selectedMaterial={selectedMaterial}
-              />
             </div>
           </div>
         )}
       </BaseCard>
+      {exam.result && (
+        <div style={{ visibility: "hidden" }} ref={componentRef}>
+          <ReportTemplate questions={exam.result} />
+        </div>
+      )}
     </div>
   );
 };
 
-export default isAuth(CourseDetails);
+export default CourseDetails;

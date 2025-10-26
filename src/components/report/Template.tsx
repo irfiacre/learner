@@ -4,9 +4,11 @@ import LogoComponent from "../logo/LogoComponent";
 import LogoIcon from "../logo/LogoIcon";
 import BaseCard from "../cards/BaseCard";
 import LineChart from "../charts/LineChart";
+import { QuestionInterface } from "@/agents/assessment";
+import QuestionComponent from "../questions/QuestionComponent";
 
 interface ReportTemplateProps {
-  period: string;
+  questions: QuestionInterface[];
 }
 
 const ConstructTable = ({
@@ -44,7 +46,8 @@ const ConstructTable = ({
 
 const ReportTemplate = React.forwardRef<HTMLDivElement, ReportTemplateProps>(
   (props, ref): any => {
-    const { period }: any = props;
+    const { questions }: any = props;
+    
     return (
       <div
         ref={ref}
@@ -56,45 +59,26 @@ const ReportTemplate = React.forwardRef<HTMLDivElement, ReportTemplateProps>(
         <div className="p-5 space-y-10">
           <section className="flex flex-row items-end justify-between">
             <div className="flex flex-row items-center gap-2">
-              <LogoIcon size={28} color="#858597" />
+              <LogoComponent />
               <h1 className="text-textLightColor text-2xl font-medium">
-                Analytics Report
+                Generated on {new Date().toLocaleString()}
               </h1>
             </div>
-            <p className="text-borderColorLight">Period: {period}</p>
           </section>
           <hr />
           <section>
-            <h1 className="text-textDarkColor text-lg capitalize">
-              Applications
-            </h1>
-            <br />
-            <ConstructTable
-              header={["Total", "Accepted", "Rejected", "Pending"]}
-              tableData={[[10, 5, 2, 3]]}
-            />
-          </section>
-          <section>
-            <h1 className="text-textDarkColor text-lg capitalize">Courses</h1>
-            <br />
-            <ConstructTable
-              header={["Total Courses", "Lectures"]}
-              tableData={[[10, 2]]}
-            />
-          </section>
-          <section>
-            <h1 className="text-textDarkColor text-lg capitalize">
-              Onboarding Hours
-            </h1>
-            <br />
-            <LineChart />
-          </section>
-          <br />
-          <br />
-          <section>
-            <p className="text-borderColorLight text-sm font-light">
-              Generated on {new Date().toLocaleString()}
-            </p>
+            <div>
+              {questions.map((question: QuestionInterface) => (
+                <div key={question.question}>
+                  <QuestionComponent
+                    content={question}
+                    handleDeleteQuestion={() => null}
+                  />
+                  <br />
+                  <hr className="py-2 text-primary" />
+                </div>
+              ))}
+            </div>
           </section>
         </div>
       </div>

@@ -3,6 +3,12 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { createAgent } from "langchain";
 import * as z from "zod";
 
+export interface QuestionInterface {
+  question: string;
+  options: String[];
+  answer: string;
+}
+
 const API_KEY = process.env.NEXT_GOOGLE_API_KEY;
 
 const model = new ChatGoogleGenerativeAI({
@@ -16,7 +22,7 @@ const QuestionsSchema = z.object({
   answer: z.string(),
 });
 
-const ModelResponse = z.object({result: z.array(QuestionsSchema) });
+const ModelResponse = z.object({ result: z.array(QuestionsSchema) });
 
 export const handleGetAgentOutput = async (assessmentPrompt: string) => {
   const agent = createAgent({
