@@ -4,6 +4,9 @@ import BaseButton from "@/src/components/buttons/BaseButton";
 import { handleGetAgentOutput } from "@/agents/assessment";
 import { buildAssessmentPrompt } from "@/agents/prompts";
 import { createDocEntry } from "@/services/firebase/helpers";
+import { PDFParse } from "pdf-parse";
+import { readFile, writeFile } from 'node:fs/promises';
+
 
 interface ExamDescriptionState {
   title: string;
@@ -36,6 +39,7 @@ const ExamDescriptionForm = ({
   const [links, setLinks] = useState<string[]>([""]);
   const [attachments, setAttachments] = useState<(File | null)[]>([null]);
   const courseOptions = [{ value: "physics", label: "Physics" }];
+  const [training, setTrainingData] = useState<string>("");
 
   const unitOptions = [
     { label: "Open Questions Only", value: "open" },
@@ -59,6 +63,27 @@ const ExamDescriptionForm = ({
 
     const result = await handleGetAgentOutput(examPrompt);
     await createDocEntry("exams", { id: crypto.randomUUID(), ...result });
+  };
+  console.log("---->", attachments);
+
+  const handleParseFiles = async () => {
+    // setProgress(true);
+    // for (const fileAttachment of attachments) {
+    //   if (!fileAttachment) continue;
+    //   const formData = new FormData();
+    //   formData.append("file", fileAttachment, fileAttachment.name);
+    //   console.log("=======:", fileAttachment.name);
+      // const FILE_NAME = `${generateFileName(fileAttachment.name)}`;
+    // }
+    // setProgress(false);
+    const parser = new PDFParse({ url: 'https://bitcoin.org/bitcoin.pdf' });
+    const result = await parser.getText();
+
+    // const FILE_PATH = "/Users/busydev/Desktop/koraa/learner/assets/demo/PhysicsLearnersBookS2.pdf"
+    // const parser = new PDFParse({ url: FILE_PATH });
+    await parser.destroy();
+
+    console.log("----->",result.text);
   };
 
   return (
@@ -272,6 +297,9 @@ const ExamDescriptionForm = ({
             </div>
           ))}
         </div>
+        <BaseButton type="button" handleSubmit={handleParseFiles}>
+          Add Files
+        </BaseButton>
       </div>
       <BaseButton>Generate</BaseButton>
     </form>
