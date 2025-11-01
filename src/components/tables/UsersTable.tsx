@@ -25,16 +25,16 @@ const UsersTable = ({ data }: { data: Array<any> }) => {
       },
       body: JSON.stringify({
         email: email,
-        subject: "Welcome to Driver Hub",
+        subject: "Welcome to learner",
         message: `
-        <p>Warm welcome to Driver Hub platform, we are excited to have you ;)</p>
+        <p>Warm welcome to learner platform, we are excited to have you ;)</p>
         <div>
         <h3>Your Credentials are:</h3>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Password:</strong> ${DEFAULT_PASSWORD}</p>
         </div>
         `,
-        title: "Welcome to Driver Hub",
+        title: "Welcome to learner",
       }),
     });
 

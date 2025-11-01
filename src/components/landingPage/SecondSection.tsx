@@ -6,37 +6,32 @@ const SecondSection = () => {
   const cardContent = [
     {
       icon: "mdi:graduation-cap",
-      title: "Training",
+      title: "Set Exam",
       description:
         "Receive industry leading training from professionals all over the world!",
     },
     {
       icon: "line-md:speed",
-      title: "Faster",
+      title: "Print Faster",
       description: "Less that a day to become a licensed taxi driver in Rwanda",
     },
     {
-      icon: "mdi:taxi",
-      title: "Easy",
+      icon: "ri:global-line",
+      title: "Anywhere",
       description:
         "Easy to use and get used to. Navigating around the application, and content of the application.",
     },
   ];
   return (
-    <section className="px-36 py-10 align-middle max-md:px-5">
-      <div className="">
+    <section className="px-36 py-10 align-middle max-md:px-5 bg-primary/5">
         <div className="space-y-5 text-center">
           <span className="text-textDarkColor text-5xl font-normal max-md:text-3xl">
-            Why Join
+            Why Use
           </span>
           {"  "}
           <span className="text-textDarkColor text-5xl font-semibold max-md:text-3xl">
-            Driver Hub?
+            Learner?
           </span>
-          <p className="text-textLightColor">
-            We have been working with more than 15,000+ drivers across east
-            Africa.
-          </p>
         </div>
 
         <div className="flex flex-row items-center justify-around gap-10 pt-10 max-md:flex-wrap">
@@ -59,7 +54,6 @@ const SecondSection = () => {
             </BaseCard>
           ))}
         </div>
-      </div>
     </section>
   );
 };

@@ -23,7 +23,7 @@ const QuestionComponent = ({
 
   const handleDelete = () => {
     handleDeleteQuestion("xxx");
-  };
+  };  
 
   return (
     <div>
@@ -46,6 +46,9 @@ const QuestionComponent = ({
             <div className="w-full border border-gray-300 rounded-md h-[10vh]"></div>
           )}
         </div>
+        <h1 className="font-normal text-primary pb-1">
+          {content.answer}
+        </h1>
       </div>
     </div>
   );

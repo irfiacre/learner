@@ -3,17 +3,21 @@ interface UserInput {
   examType: string;
   note: string;
   links: String[];
-  extraInformation?: String[];
+  baseInformation?: string;
 }
-//    ${
-//       input.extraInformation.len &&
-//       `- Use this information as the basis for any of your answers ${input.extraInformation.toString()}`
-//     }
+
 export const buildAssessmentPrompt = (input: UserInput) => `
     <context>
     ${
+      input.baseInformation &&
+      input.baseInformation.length > 0 &&
+      `- Here is the only information to use, nothing else, I repeate nothing else ${input.baseInformation.toString()}`
+    }
+    ${
       input.links?.length > 0 &&
-      `- Read information from these links provided by the user ${input.links.toString()}`
+      `For added context, open and use this information in these links these links provided by the user:
+      - ${input.links.map((link) => `"${link}"`).toString()}
+      `
     }
     </context>
     <systemRole>
@@ -38,5 +42,7 @@ export const buildAssessmentPrompt = (input: UserInput) => `
     </outputSchema>
 `;
 
-// The exam should be for primary 3 school students
+// Prepare an exam on the unit "Quantitative Analysis of Linear Motion" on Motion due to gravity (the exam is 10 questions).
 // https://www.uvm.edu/~ldonfort/P21S20/2_Kinematics.pdf
+// https://phys.libretexts.org/Bookshelves/University_Physics/Book%3A_Introductory_Physics_-_Building_Models_to_Describe_Our_World_(Martin_Neary_Rinaldo_and_Woodman)/06%3A_Applying_Newtons_Laws/6.02%3A_Linear_motion
+// https://www.wscacademy.org/ourpages/auto/2012/12/2/58245433/Physics%20Chapter%204%20Textbook.pdf

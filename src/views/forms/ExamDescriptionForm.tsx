@@ -4,9 +4,9 @@ import BaseButton from "@/src/components/buttons/BaseButton";
 import { handleGetAgentOutput } from "@/agents/assessment";
 import { buildAssessmentPrompt } from "@/agents/prompts";
 import { createDocEntry } from "@/services/firebase/helpers";
-import { PDFParse } from "pdf-parse";
-import { readFile, writeFile } from 'node:fs/promises';
-
+import { parseAttachments } from "@/actions/actions";
+import BaseInput from "@/src/components/inputs/BaseInput";
+import { useRouter } from "next/navigation";
 
 interface ExamDescriptionState {
   title: string;
@@ -18,72 +18,90 @@ const ExamDescriptionForm = ({
 }: {
   onFormSubmit: (obj: ExamDescriptionState) => void;
 }) => {
-  const [state, setState] = useState<ExamDescriptionState>({
-    title: "",
-    description: "",
-  });
-
-  const handleInputChange = (e: any) => {
-    e.preventDefault();
-    setState((prevState: any) => ({
-      ...prevState,
-      [e.target.id]: e.target.value,
-    }));
-  };
-  const handleSubmitForm = (e: any) => {
-    e.preventDefault();
-    onFormSubmit(state);
-  };
-
   const [textInput, setTextInput] = useState<string>("");
   const [links, setLinks] = useState<string[]>([""]);
   const [attachments, setAttachments] = useState<(File | null)[]>([null]);
   const courseOptions = [{ value: "physics", label: "Physics" }];
   const [training, setTrainingData] = useState<string>("");
+  const [parseMessage, setParseMessage] = useState<string>("");
+  const [error, setError] = useState<{ error: boolean; text: string }>({
+    error: false,
+    text: "",
+  });
+  const [generating, setGenerating] = useState<boolean>(false);
 
   const unitOptions = [
     { label: "Open Questions Only", value: "open" },
     { label: "Multiple Choice Questions Only", value: "multiplechoice" },
     { label: "Mix of Multiple Choice and Open Questions", value: "mixture" },
   ];
+  const router = useRouter();
 
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [selectedExamType, setSelectedUnit] = useState<string>("");
 
+  const handleParseFiles = async () => {
+    const filesToParse = attachments.filter(
+      (file: any) => file !== null
+    ) as File[];
+
+    if (filesToParse.length === 0) {
+      setError({
+        text: "Please select at least one file.",
+        error: true,
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    for (const file of filesToParse) {
+      formData.append("attachments", file);
+    }
+
+    try {
+      const extractedText = await parseAttachments(formData);
+      setTrainingData((prev: string) => prev + extractedText);
+      setError({
+        text: "Please select at least one file.",
+        error: false,
+      });
+
+      setAttachments([null]);
+    } catch (error) {
+      console.error("Error parsing files:", error);
+      setError({
+        text: (error as Error).message,
+        error: true,
+      });
+    } finally {
+    }
+  };
+
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setGenerating(true);
+    await handleParseFiles();
+    console.info("===== Done Parsing Training Data ======");
 
-    const examPrompt = buildAssessmentPrompt({
+    const examObject = {
       course: selectedCourse,
       examType: unitOptions.filter((elt) => elt.value === selectedExamType)[0]
         .label,
       note: textInput,
       links,
-    });
+      baseInformation: training,
+    };
 
+    const examPrompt = buildAssessmentPrompt(examObject);
     const result = await handleGetAgentOutput(examPrompt);
-    await createDocEntry("exams", { id: crypto.randomUUID(), ...result });
-  };
-  console.log("---->", attachments);
-
-  const handleParseFiles = async () => {
-    // setProgress(true);
-    // for (const fileAttachment of attachments) {
-    //   if (!fileAttachment) continue;
-    //   const formData = new FormData();
-    //   formData.append("file", fileAttachment, fileAttachment.name);
-    //   console.log("=======:", fileAttachment.name);
-      // const FILE_NAME = `${generateFileName(fileAttachment.name)}`;
-    // }
-    // setProgress(false);
-    const parser = new PDFParse({ url: 'https://bitcoin.org/bitcoin.pdf' });
-    const result = await parser.getText();
-
-    // const FILE_PATH = "/Users/busydev/Desktop/koraa/learner/assets/demo/PhysicsLearnersBookS2.pdf"
-    // const parser = new PDFParse({ url: FILE_PATH });
-    await parser.destroy();
-
-    console.log("----->",result.text);
+    await createDocEntry("exams", {
+      id: crypto.randomUUID(),
+      ...result,
+      ...examObject,
+      createdAt: new Date(),
+    });
+    setGenerating(false);
+    router.push("/exams");
   };
 
   return (
@@ -101,7 +119,7 @@ const ExamDescriptionForm = ({
           value={selectedCourse}
           onChange={(e) => {
             setSelectedCourse(e.target.value);
-            setSelectedUnit(""); // Reset unit selection if course changes
+            setSelectedUnit("");
           }}
         >
           <option value="">Select a Course</option>
@@ -133,6 +151,9 @@ const ExamDescriptionForm = ({
             </option>
           ))}
         </select>
+      </div>
+      <div>
+        {/* <BaseInput label="Number Of Questions" required={true} type="number" onChange={}/> */}
       </div>
       <textarea
         value={textInput}
@@ -297,11 +318,8 @@ const ExamDescriptionForm = ({
             </div>
           ))}
         </div>
-        <BaseButton type="button" handleSubmit={handleParseFiles}>
-          Add Files
-        </BaseButton>
       </div>
-      <BaseButton>Generate</BaseButton>
+      <BaseButton loading={generating}>Generate</BaseButton>
     </form>
   );
 };

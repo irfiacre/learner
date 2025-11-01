@@ -17,11 +17,11 @@ const Footer = () => {
       <div className="space-y-10">
         <div className="flex items-center">
           <LogoIcon color="#263238" size={40} />
-          <span className="text-white text-4xl font-semibold">Driver Hub</span>
+          <span className="text-white text-4xl font-semibold">Learner</span>
         </div>
         <div>
           <p className="text-white text-sm pl-2">
-            Copyright © 2024 Iradukunda Allelua Fiacre.
+            Copyright © {new Date().getFullYear()} Iradukunda Allelua Fiacre.
           </p>
           <p className="text-white text-sm pl-2 py-2">All rights reserved</p>
         </div>

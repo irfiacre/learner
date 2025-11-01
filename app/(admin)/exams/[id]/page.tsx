@@ -37,8 +37,6 @@ const CourseDetails = () => {
       );
   }, [params.id]);
 
-  const handleMaterialClick = (material: any) => setSelectedMaterial(material);
-
   const componentRef = useRef<HTMLDivElement>(null);
 
   const generateReport = () => {
@@ -125,7 +123,7 @@ const CourseDetails = () => {
           </div>
         )}
       </BaseCard>
-      {exam.result && (
+      {exam?.result && (
         <div style={{ visibility: "hidden" }} ref={componentRef}>
           <ReportTemplate questions={exam.result} />
         </div>

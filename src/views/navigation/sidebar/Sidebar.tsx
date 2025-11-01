@@ -9,15 +9,15 @@ export const Sidebar = () => {
     dashboard: [
       {
         title: "Set Exam",
-        subtitle: "Tegura Ikizamini",
+        subtitle: "Prepare exam",
         url: "dashboard",
         icon: "ph:exam-fill",
       },
     ],
     exams: [
       {
-        title: "Past Exams",
-        subtitle: "Ibizamini Byahise",
+        title: "Exams",
+        subtitle: "Show exams",
         url: "exams",
         icon: "lsicon:paste-filled",
       },

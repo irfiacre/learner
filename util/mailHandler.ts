@@ -23,7 +23,7 @@ export const sendEmail = async ({
 }) => {
   // Setup email data
   let mailOptions = {
-    from: `Driver Hub(${SENDER_EMAIL})`,
+    from: `learner(${SENDER_EMAIL})`,
     to: email,
     subject: subject,
     html: formatHtmlEmail(title, message),

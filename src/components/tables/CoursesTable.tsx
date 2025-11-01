@@ -12,7 +12,6 @@ import { generateId } from "@/util/helpers";
 import {
   createDocEntry,
   deleteDocEntryById,
-  findDocEntryByField,
   updateDocEntry,
 } from "@/services/firebase/helpers";
 
@@ -103,37 +102,15 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
   const handleDelete = async (course: any) => {
     const deleted = await deleteDocEntryById(EXAM_COLLECTION_NAME, course.id);
     if (deleted) {
-      toast.success(`${course.title} is Deleted`, {
+      toast.success(`${course.id} is Deleted`, {
         hideProgressBar: true,
         closeOnClick: true,
         autoClose: 3000,
       });
     }
   };
-  const handleRecommendCourse = async (course: any) => {
-    const findRecommended = await await findDocEntryByField(
-      EXAM_COLLECTION_NAME,
-      "id",
-      course.id
-    );
-    if (findRecommended) return;
+  console.log(data);
 
-    const courseFormat = {
-      ...course,
-      recommended: true,
-    };
-    await updateDocEntry(EXAM_COLLECTION_NAME, courseFormat.id, courseFormat);
-
-    const recommended = await createDocEntry(EXAM_COLLECTION_NAME, course);
-
-    if (recommended) {
-      toast.success(`Course "${course.title}" Is successfully recommended.`, {
-        hideProgressBar: true,
-        closeOnClick: true,
-        autoClose: 3000,
-      });
-    }
-  };
   return (
     <BaseCard className="px-10 py-5">
       <SearchableInput
@@ -154,7 +131,9 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
       </div>
       <div className="py-2.5 text-textLightColor text-base font-semibold flex flex-row align-middle items-center px-1.5 gap-3.5 cursor-pointer bg-backgroundColor">
         <span className="w-full">Title</span>
-        <span className="w-full">Number of Questions</span>
+        <span className="w-2/4">Course</span>
+        <span className="w-2/4">Type of Exam</span>
+        <span className="w-2/4">Questions</span>
         <span className="w-2/4">Actions</span>
       </div>
       <hr />
@@ -167,10 +146,25 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
                   href={`/exams/${item.id}`}
                   className="flex gap-2 items-center"
                 >
-                  <span>{item.id}</span>
+                  <span>{`${item.note.substring(0, 45)} ...`}</span>
                 </Link>
               </div>
-              <div className="text-sm w-full">
+              <div className="text-sm w-2/4">
+                <Link href={`/exams/${item.id}`}>
+                  <span className="text-textLightColor font-light">
+                    {item.course}
+                  </span>
+                </Link>
+              </div>
+              <div className="w-2/4">
+                <Link
+                  href={`/exams/${item.id}`}
+                  className="flex gap-2 items-center"
+                >
+                  <span>{item.examType}</span>
+                </Link>
+              </div>
+              <div className="text-sm w-2/4">
                 <Link href={`/exams/${item.id}`}>
                   <span className="text-textLightColor font-light">
                     {item.result?.length}

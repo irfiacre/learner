@@ -2,52 +2,42 @@ import React from "react";
 
 interface InputProps {
   label: string;
-  value: string;
   error?: string | null;
-  placeholder?: string;
-  required?: boolean;
-  onInputChange: (e: any) => void;
-  disabled?: boolean;
+  className?: string;
+  additionalStyles?: string;
 }
 
 const BaseInput = ({
   label,
-  value,
   error,
-  required,
-  placeholder,
-  onInputChange,
-  disabled,
+  className,
+  additionalStyles,
+  ...props
 }: InputProps) => {
-  const inputID = label ? label.split(" ").join("_").toLowerCase() : "no_label";
-  const inputType = inputID.includes("email")
-    ? "email"
-    : inputID.includes("password")
-    ? "password"
-    : "text";
+  const inputID = `${label.toLowerCase()}-${Math.round(Math.random() * 10000)}`;
+
   return (
-    <div className="p-3.5">
+    <div>
       <label
         htmlFor={inputID}
         className={`block mb-2 ${
-          error ? "text-red-500" : "text-textDarkColor"
-        } font-bold`}
+          error ? "text-red-500" : "text-gray-700"
+        } mb-1 font-semibold`}
       >
         {label}
       </label>
       <input
-        type={inputType}
         id={inputID}
-        className={`block w-full p-2 h-14 ${
-          error
-            ? "bg-red-50 border border-red-500 text-red-900"
-            : "bg-backgroundColor border border-borderColorLight focus:bg-white focus:border-borderColorLight"
-        } text-md rounded-md  focus:outline-none disabled:bg-backgroundColor2`}
-        placeholder={`Enter ${placeholder || ""}`}
-        required={required || true}
-        value={value}
-        onChange={onInputChange}
-        disabled={disabled}
+        className={
+          className
+            ? className
+            : `block w-full p-2 h-14 ${
+                error
+                  ? "bg-red-50 border border-red-500 text-red-900"
+                  : "bg-backgroundColor border border-borderColorLight focus:bg-white focus:border-borderColorLight"
+              } text-md rounded-md  focus:outline-none disabled:bg-backgroundColor2`
+        }
+        {...props}
       />
       {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
     </div>

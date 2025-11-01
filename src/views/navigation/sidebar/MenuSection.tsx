@@ -33,7 +33,7 @@ export const MenuItem = ({ content }: { content: any }) => {
             {content.title}
           </p>
           <p
-            className={`text-sm  ${
+            className={`text-sm capitalize  ${
               active ? "text-white" : "text-borderColorLight"
             }`}
           >
