@@ -5,7 +5,7 @@ const BaseRadioButton = ({
   handleClicked,
 }: {
   value: string;
-  handleClicked: (e: any) => void;
+  handleClicked?: (e: any) => void;
 }) => {
   return (
     <div className="p-3.5">

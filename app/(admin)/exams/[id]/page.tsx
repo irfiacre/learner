@@ -6,10 +6,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { PulseLoader } from "react-spinners";
 import BaseCard from "@/src/components/cards/BaseCard";
 import { useParams } from "next/navigation";
-import {
-  findDocEntryById,
-  subscribeToDocument,
-} from "@/services/firebase/helpers";
+import { findDocEntryById, updateDocEntry } from "@/services/firebase/helpers";
 import { EXAM_COLLECTION_NAME } from "@/constants/collectionNames";
 import Loading from "@/src/components/LoadingComponent";
 import QuestionComponent from "@/src/components/questions/QuestionComponent";
@@ -21,6 +18,7 @@ const CourseDetails = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [exam, setExam] = useState<any>(null);
   const [generating, setGenerating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -70,6 +68,30 @@ const CourseDetails = () => {
     setGenerating(false);
   };
 
+  const questionDeleted = async (questionObj: any) => {
+    setDeleting(true);
+    const updatedExam = {
+      ...exam,
+      result: exam.result.filter(
+        (elt: any) => elt.question !== questionObj.question
+      ),
+    };
+
+    const result = await updateDocEntry(
+      EXAM_COLLECTION_NAME,
+      `${params.id}`,
+      updatedExam
+    );
+    if (result) {
+      const result = await findDocEntryById(
+        EXAM_COLLECTION_NAME,
+        `${params.id}`
+      );
+      setExam(result);
+    }
+    setDeleting(false);
+  };
+
   return (
     <div>
       <BaseCard className="px-10 py-10">
@@ -108,7 +130,8 @@ const CourseDetails = () => {
                     <div key={question.question}>
                       <QuestionComponent
                         content={question}
-                        handleDeleteQuestion={() => console.log("=======")}
+                        handleDeleteQuestion={questionDeleted}
+                        loading={deleting}
                       />
                       <br />
                       <hr className="py-2 text-primary" />
@@ -120,11 +143,13 @@ const CourseDetails = () => {
           </div>
         )}
       </BaseCard>
-      {exam?.result && (
-        <div style={{ visibility: "hidden" }} ref={componentRef}>
-          <ReportTemplate questions={exam.result} />
-        </div>
-      )}
+      <div className="hidden">
+        {exam?.result && (
+          <div style={{ visibility: "hidden" }} ref={componentRef}>
+            <ReportTemplate questions={exam.result} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
