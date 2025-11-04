@@ -43,7 +43,7 @@ const TopSection = () => {
             </span>
             <br />
             <span className="text-primary text-7xl font-semibold max-md:text-4xl">
-              Learner
+              Teacher
             </span>
           </div>
         </div>

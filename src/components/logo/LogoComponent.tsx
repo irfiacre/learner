@@ -5,7 +5,7 @@ const LogoComponent = () => {
     <div className="flex justify-center align-middle items-center gap-2">
       <div>
         <h1 className="font-medium text-primary text-3xl">
-          Learner
+          Teacher
         </h1>
       </div>
     </div>

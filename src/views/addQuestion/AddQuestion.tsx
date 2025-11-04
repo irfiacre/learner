@@ -1,7 +1,5 @@
-import { handleGetAgentOutput, QuestionInterface } from "@/agents/assessment";
+import { handleGetAgentOutput } from "@/agents/assessment";
 import { buildQuestionPrompt } from "@/agents/prompts";
-import { EXAM_COLLECTION_NAME } from "@/constants/collectionNames";
-import { updateDocEntry } from "@/services/firebase/helpers";
 import BaseButton from "@/src/components/buttons/BaseButton";
 import React, { useState } from "react";
 
