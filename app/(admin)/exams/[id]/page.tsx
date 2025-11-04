@@ -12,6 +12,7 @@ import Loading from "@/src/components/LoadingComponent";
 import QuestionComponent from "@/src/components/questions/QuestionComponent";
 import { QuestionInterface } from "@/agents/assessment";
 import ReportTemplate from "@/src/components/report/Template";
+import AddQuestion from "@/src/views/addQuestion/AddQuestion";
 
 const CourseDetails = () => {
   const params = useParams();
@@ -19,6 +20,7 @@ const CourseDetails = () => {
   const [exam, setExam] = useState<any>(null);
   const [generating, setGenerating] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [addingQuestions, setAddingQuestions] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -92,6 +94,29 @@ const CourseDetails = () => {
     setDeleting(false);
   };
 
+  const handleAddMoreQuestions = async (questions: any) => {
+    setAddingQuestions(true);
+    const updatedExam = {
+      ...exam,
+      result: exam.result.concat(questions.result),
+    };
+
+    const response = await updateDocEntry(
+      EXAM_COLLECTION_NAME,
+      `${params.id}`,
+      updatedExam
+    );
+    if (response) {
+      const result = await findDocEntryById(
+        EXAM_COLLECTION_NAME,
+        `${params.id}`
+      );
+      setExam(result);
+    }
+
+    setAddingQuestions(false);
+  };
+
   return (
     <div>
       <BaseCard className="px-10 py-10">
@@ -132,6 +157,7 @@ const CourseDetails = () => {
                         content={question}
                         handleDeleteQuestion={questionDeleted}
                         loading={deleting}
+                        hasDelete
                       />
                       <br />
                       <hr className="py-2 text-primary" />
@@ -139,17 +165,21 @@ const CourseDetails = () => {
                   ))}
                 </div>
               </div>
+
+              <AddQuestion
+                exam={exam}
+                loading={addingQuestions}
+                handleAddMoreQuestions={handleAddMoreQuestions}
+              />
             </div>
           </div>
         )}
       </BaseCard>
-      <div className="hidden">
-        {exam?.result && (
-          <div style={{ visibility: "hidden" }} ref={componentRef}>
-            <ReportTemplate questions={exam.result} />
-          </div>
-        )}
-      </div>
+      {exam?.result && (
+        <div style={{ visibility: "hidden" }} ref={componentRef}>
+          <ReportTemplate questions={exam.result} />
+        </div>
+      )}
     </div>
   );
 };

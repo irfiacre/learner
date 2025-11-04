@@ -13,10 +13,12 @@ const QuestionComponent = ({
   content,
   handleDeleteQuestion,
   loading,
+  hasDelete,
 }: {
   content: any;
   handleDeleteQuestion: (id: string) => void;
   loading?: boolean;
+  hasDelete?: boolean;
 }) => {
   const [state, setState] = useState<CreateCourseMaterialState>({
     title: "",
@@ -28,14 +30,16 @@ const QuestionComponent = ({
     <div>
       <div className="w-full">
         <div className="flex flex-row gap-5 items-center">
-          <button
-            className="inline-flex self-center items-center p-2 text-sm font-medium text-center text-red-600 bg-inherit rounded-full hover:bg-red-600 hover:text-white focus:outline-none disabled:text-textLightColor"
-            type="button"
-            onClick={() => handleDeleteQuestion(content)}
-            disabled={loading}
-          >
-            <Icon icon="mdi:delete" fontSize={20} />
-          </button>
+          {hasDelete && (
+            <button
+              className="inline-flex self-center items-center p-2 text-sm font-medium text-center text-red-600 bg-inherit rounded-full hover:bg-red-600 hover:text-white focus:outline-none disabled:text-textLightColor"
+              type="button"
+              onClick={() => handleDeleteQuestion(content)}
+              disabled={loading}
+            >
+              <Icon icon="mdi:delete" fontSize={20} />
+            </button>
+          )}
           <h1 className="font-medium text-textLightColor pb-1">
             {content.question}
           </h1>

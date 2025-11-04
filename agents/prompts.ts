@@ -1,3 +1,5 @@
+import { QuestionInterface } from "./assessment";
+
 interface UserInput {
   course: string;
   examType: string;
@@ -26,11 +28,30 @@ export const buildAssessmentPrompt = (input: UserInput) => `
     Your ONLY task is to generate a custom assessment exam for students so that.
     </systemRole>
     <rules>
-    - The result custom assessment exam should follow these instructions ${
-      input.note
-    }
     - The type of custom assessment exam is ${input.examType}.
     </rules>
+    <outputSchema>
+    [{
+    "question": "<question>",
+    "options": ["option 1", "option 2", ...],
+    "answer" : "correct answer"
+    },
+    .......
+    ]
+    </outputSchema>
+`;
+
+export const buildQuestionPrompt = (
+  initialPrompt: string,
+  questions: QuestionInterface[]
+) => `
+    <context>
+    This was the initial prompt from the user: ${initialPrompt}.
+    And the questions that were generated are: ${questions}
+    </context>
+    <systemRole>
+    Your ONLY task is to generate new question (s) based on the old assessment questions based on the user's input {input}.
+    </systemRole>
     <outputSchema>
     [{
     "question": "<question>",

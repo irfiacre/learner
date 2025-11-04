@@ -24,18 +24,22 @@ const QuestionsSchema = z.object({
 
 const ModelResponse = z.object({ result: z.array(QuestionsSchema) });
 
-export const handleGetAgentOutput = async (assessmentPrompt: string) => {
+export const handleGetAgentOutput = async (
+  assessmentPrompt: string,
+  question: string
+) => {
   const agent = createAgent({
     model,
     tools: [],
     responseFormat: ModelResponse,
+    systemPrompt: assessmentPrompt,
   });
 
   const result = await agent.invoke({
     messages: [
       {
         role: "user",
-        content: assessmentPrompt,
+        content: question,
       },
     ],
   });

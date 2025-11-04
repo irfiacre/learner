@@ -92,7 +92,7 @@ const ExamDescriptionForm = ({
     };
 
     const examPrompt = buildAssessmentPrompt(examObject);
-    const result = await handleGetAgentOutput(examPrompt);
+    const result = await handleGetAgentOutput(examPrompt, textInput);
     await createDocEntry("exams", {
       id: crypto.randomUUID(),
       ...result,
