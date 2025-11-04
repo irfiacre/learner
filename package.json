@@ -14,7 +14,6 @@
     "@iconify/react": "^5.0.1",
     "@langchain/core": "^1.0.1",
     "@langchain/google-genai": "^1.0.0",
-    "@lottiefiles/react-lottie-player": "^3.5.4",
     "@types/html2canvas": "^1.0.0",
     "@types/jspdf": "^2.0.0",
     "@types/node": "^20",

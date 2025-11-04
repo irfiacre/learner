@@ -6,7 +6,10 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { PulseLoader } from "react-spinners";
 import BaseCard from "@/src/components/cards/BaseCard";
 import { useParams } from "next/navigation";
-import { subscribeToDocument } from "@/services/firebase/helpers";
+import {
+  findDocEntryById,
+  subscribeToDocument,
+} from "@/services/firebase/helpers";
 import { EXAM_COLLECTION_NAME } from "@/constants/collectionNames";
 import Loading from "@/src/components/LoadingComponent";
 import QuestionComponent from "@/src/components/questions/QuestionComponent";
@@ -16,25 +19,19 @@ import ReportTemplate from "@/src/components/report/Template";
 const CourseDetails = () => {
   const params = useParams();
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectedMaterial, setSelectedMaterial] = useState({});
-  const [exam, setExam] = useState<any>({});
+  const [exam, setExam] = useState<any>(null);
   const [generating, setGenerating] = useState(false);
-  const [dateRange, setDateRange] = useState<any>({
-    startDate: new Date().setMonth(new Date().getMonth() - 1),
-    endDate: new Date(),
-  });
 
-  const handleOnUpdateData = (newChanges: any) => {
-    setExam(newChanges);
-    setLoading(false);
-  };
   useEffect(() => {
-    return () =>
-      subscribeToDocument(
+    (async () => {
+      setLoading(true);
+      const result = await findDocEntryById(
         EXAM_COLLECTION_NAME,
-        handleOnUpdateData,
-        params.id.toLocaleString()
+        `${params.id}`
       );
+      setExam(result);
+      setLoading(false);
+    })();
   }, [params.id]);
 
   const componentRef = useRef<HTMLDivElement>(null);
@@ -66,7 +63,7 @@ const CourseDetails = () => {
         } else {
           pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
         }
-        pdf.save(`Exam-${dateRange.startDate}-${dateRange.endDate}.pdf`);
+        pdf.save(`Exam-${params.id}.pdf`);
         input.style.visibility = "hidden";
       });
     }
@@ -76,7 +73,7 @@ const CourseDetails = () => {
   return (
     <div>
       <BaseCard className="px-10 py-10">
-        {!exam?.id ? (
+        {loading && !exam ? (
           <Loading />
         ) : (
           <div className="flex flex-row max-md:flex-col max-md:divide-y-2 md:divide-x-2 text-textDarkColor">
@@ -107,7 +104,7 @@ const CourseDetails = () => {
               <div className="py-5">
                 <h1 className="pb-5 text-xl font-semibold">Exam Questions</h1>
                 <div>
-                  {exam.result.map((question: QuestionInterface) => (
+                  {exam?.result?.map((question: QuestionInterface) => (
                     <div key={question.question}>
                       <QuestionComponent
                         content={question}

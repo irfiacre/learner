@@ -1,5 +1,4 @@
 "use client";
-import LoginPage from "@/src/views/pages/home/LoginPage";
 import DashboardPage from "@/src/views/pages/home/Dashboard";
 import { useEffect, useState } from "react";
 

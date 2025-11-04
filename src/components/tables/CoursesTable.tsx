@@ -109,7 +109,6 @@ const CoursesTable = ({ data }: { data: Array<any> }) => {
       });
     }
   };
-  console.log(data);
 
   return (
     <BaseCard className="px-10 py-5">

@@ -23,7 +23,6 @@ const ExamDescriptionForm = ({
   const [attachments, setAttachments] = useState<(File | null)[]>([null]);
   const courseOptions = [{ value: "physics", label: "Physics" }];
   const [training, setTrainingData] = useState<string>("");
-  const [parseMessage, setParseMessage] = useState<string>("");
   const [error, setError] = useState<{ error: boolean; text: string }>({
     error: false,
     text: "",
@@ -99,6 +98,7 @@ const ExamDescriptionForm = ({
       ...result,
       ...examObject,
       createdAt: new Date(),
+      examPrompt,
     });
     setGenerating(false);
     router.push("/exams");
