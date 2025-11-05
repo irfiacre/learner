@@ -12,17 +12,17 @@ const AIInput = ({
 }) => {
   const [text, setText] = useState<string>("");
   return (
-    <div className="flex flex-row items-center gap-5">
+    <div className="flex flex-col items-center justify-center gap-5 p-5">
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Describe the question ..."
-        className="w-[80%] bg-gray-100 border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent resize-vertical min-h-[70px]"
+        className="w-full bg-gray-100 border border-gray-300 rounded-md px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent resize-vertical min-h-[70px]"
         rows={3}
       />
       <BaseButton
         handleSubmit={() => handleSubmit(text)}
-        className="rounded-full px-10 py-2 bg-primary/90 hover:bg-primary text-white"
+        className="rounded-full px-12 py-3 bg-primary/90 hover:bg-primary text-white"
         loading={loading}
       >
         Send
@@ -57,19 +57,10 @@ const AddQuestion = ({
         <h1 className="text-xl text-center py-5 text-gray-500">
           Add another question
         </h1>
-        {showInput ? (
-          <AIInput
-            handleSubmit={handleAskAI}
-            loading={addingQuestions || loading}
-          />
-        ) : (
-          <BaseButton
-            handleSubmit={() => setShowInput(true)}
-            className="rounded-full px-10 py-2 bg-primary/90 hover:bg-primary text-white"
-          >
-            Ask AI
-          </BaseButton>
-        )}
+        <AIInput
+          handleSubmit={handleAskAI}
+          loading={addingQuestions || loading}
+        />
       </div>
     </div>
   );

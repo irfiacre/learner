@@ -13,6 +13,7 @@ import QuestionComponent from "@/src/components/questions/QuestionComponent";
 import { QuestionInterface } from "@/agents/assessment";
 import ReportTemplate from "@/src/components/report/Template";
 import AddQuestion from "@/src/views/addQuestion/AddQuestion";
+import BaseButton from "@/src/components/buttons/BaseButton";
 
 const CourseDetails = () => {
   const params = useParams();
@@ -48,7 +49,6 @@ const CourseDetails = () => {
         const pageHeight = 297;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
         let heightLeft = imgHeight;
-        let position = 0;
 
         if (imgHeight > pageHeight) {
           let position = 0;
@@ -119,62 +119,56 @@ const CourseDetails = () => {
 
   return (
     <div>
-      <BaseCard className="px-10 py-10">
-        {loading && !exam ? (
-          <Loading />
-        ) : (
-          <div className="flex flex-row max-md:flex-col max-md:divide-y-2 md:divide-x-2 text-textDarkColor">
-            <div className="w-full max-md:w-full">
-              <button
-                type="button"
-                onClick={() => generateReport()}
-                className="h-12 text-white bg-primary hover:bg-primary/90 focus:outline-none font-medium rounded-lg text-md text-center px-4 flex flex-row items-center justify-center float-right"
-              >
-                {generating ? (
-                  <PulseLoader
-                    color={"#ffffff"}
-                    loading={generating}
-                    size={10}
-                    cssOverride={{ width: "100%" }}
-                    aria-label="Loading Spinner"
-                    data-testid="loader"
-                    speedMultiplier={0.5}
-                  />
-                ) : (
-                  <span className="pr-2">Print Exam</span>
-                )}
-                <Icon
-                  icon="material-symbols:print-outline-rounded"
-                  fontSize={24}
-                />
-              </button>
-              <div className="py-5">
-                <h1 className="pb-5 text-xl font-semibold">Exam Questions</h1>
-                <div>
-                  {exam?.result?.map((question: QuestionInterface) => (
-                    <div key={question.question}>
-                      <QuestionComponent
-                        content={question}
-                        handleDeleteQuestion={questionDeleted}
-                        loading={deleting}
-                        hasDelete
-                      />
-                      <br />
-                      <hr className="py-2 text-primary" />
+      <div className="flex flex-row gap-5">
+        <div>
+          <BaseButton
+            handleSubmit={() => generateReport()}
+            additionalStyles="w-auto flex flex-row items-center justify-center h-8 my-2 float-right"
+            loading={generating}
+          >
+            <span className="pr-2">Print Exam</span>
+            <Icon icon="material-symbols:print-outline-rounded" fontSize={24} />
+          </BaseButton>
+          <BaseCard className="px-10 py-10 w-full">
+            {loading && !exam ? (
+              <Loading />
+            ) : (
+              <div className="flex flex-row max-md:flex-col max-md:divide-y-2 md:divide-x-2 text-textDarkColor">
+                <div className="w-full max-md:w-full">
+                  <div className="py-5">
+                    <h1 className="pb-5 text-xl font-semibold">
+                      Exam Questions
+                    </h1>
+                    <div>
+                      {exam?.result?.map(
+                        (question: QuestionInterface, index: number) => (
+                          <div key={question.question}>
+                            <QuestionComponent
+                              number={index + 1}
+                              content={question}
+                              handleDeleteQuestion={questionDeleted}
+                              loading={deleting}
+                            />
+                            <br />
+                            <hr className="py-2 text-primary" />
+                          </div>
+                        )
+                      )}
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
-
-              <AddQuestion
-                exam={exam}
-                loading={addingQuestions}
-                handleAddMoreQuestions={handleAddMoreQuestions}
-              />
-            </div>
-          </div>
-        )}
-      </BaseCard>
+            )}
+          </BaseCard>
+        </div>
+        <BaseCard className="w-2/4">
+          <AddQuestion
+            exam={exam}
+            loading={addingQuestions}
+            handleAddMoreQuestions={handleAddMoreQuestions}
+          />
+        </BaseCard>
+      </div>
       {exam?.result && (
         <div style={{ visibility: "hidden" }} ref={componentRef}>
           <ReportTemplate questions={exam.result} />
