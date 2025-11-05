@@ -1,6 +1,6 @@
 import React from "react";
 
-interface InputProps {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string | null;
   className?: string;
@@ -17,7 +17,7 @@ const BaseInput = ({
   const inputID = `${label.toLowerCase()}-${Math.round(Math.random() * 10000)}`;
 
   return (
-    <div>
+    <div className="w-full">
       <label
         htmlFor={inputID}
         className={`block mb-2 ${

@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { PulseLoader } from "react-spinners";
 import BaseCard from "@/src/components/cards/BaseCard";
 import { useParams } from "next/navigation";
 import { findDocEntryById, updateDocEntry } from "@/services/firebase/helpers";

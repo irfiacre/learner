@@ -34,10 +34,19 @@ const ExamDescriptionForm = ({
     { label: "Multiple Choice Questions Only", value: "multiplechoice" },
     { label: "Mix of Multiple Choice and Open Questions", value: "mixture" },
   ];
+
+  const numberOfQuestionOptions = [
+    { label: "2", value: "2" },
+    { label: "5", value: "5" },
+    { label: "10", value: "10" },
+    { label: "15", value: "15" },
+  ];
+
   const router = useRouter();
 
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [selectedExamType, setSelectedUnit] = useState<string>("");
+  const [numberOfQuestions, setNumberOfQuestions] = useState<string>("");
 
   const handleParseFiles = async () => {
     const filesToParse = attachments.filter(
@@ -92,38 +101,43 @@ const ExamDescriptionForm = ({
     };
 
     const examPrompt = buildAssessmentPrompt(examObject);
-    const result = await handleGetAgentOutput(examPrompt, textInput);
-    await createDocEntry("exams", {
-      id: crypto.randomUUID(),
-      ...result,
-      ...examObject,
-      createdAt: new Date(),
-      examPrompt,
-    });
+    console.log(examObject, examPrompt);
+    
+    // const result = await handleGetAgentOutput(examPrompt, textInput);
+    // await createDocEntry("exams", {
+    //   id: crypto.randomUUID(),
+    //   ...result,
+    //   ...examObject,
+    //   createdAt: new Date(),
+    //   examPrompt,
+    // });
     setGenerating(false);
-    router.push("/exams");
+    // router.push("/exams");
   };
 
   return (
     <form className="w-full space-y-5" onSubmit={handleFormSubmit}>
       <div className="flex flex-col items-start w-full">
+        <BaseInput label="Course Name" required={true} type="text" onChange={(e) => setSelectedCourse(e.target.value)} additionalStyles="w-full"/> 
+      </div>
+
+      <div className="flex flex-col items-start w-full">
         <label
           htmlFor="course-name-select"
           className="mb-1 text-gray-700 font-semibold"
         >
-          Course Name
+          Number of Questions
         </label>
         <select
-          id="course-name-select"
+          id="question-number-select"
           className="w-full bg-gray-100 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
-          value={selectedCourse}
+          value={numberOfQuestions}
           onChange={(e) => {
-            setSelectedCourse(e.target.value);
-            setSelectedUnit("");
+            setNumberOfQuestions(e.target.value);
           }}
         >
-          <option value="">Select a Course</option>
-          {courseOptions.map((c) => (
+          <option value="">Select Number</option>
+          {numberOfQuestionOptions.map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}
             </option>
