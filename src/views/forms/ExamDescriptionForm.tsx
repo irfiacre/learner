@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BaseButton from "@/src/components/buttons/BaseButton";
 import { handleGetAgentOutput } from "@/agents/assessment";
 import { buildAssessmentPrompt } from "@/agents/prompts";
@@ -21,7 +21,6 @@ const ExamDescriptionForm = ({
   const [textInput, setTextInput] = useState<string>("");
   const [links, setLinks] = useState<string[]>([""]);
   const [attachments, setAttachments] = useState<(File | null)[]>([null]);
-  const courseOptions = [{ value: "physics", label: "Physics" }];
   const [training, setTrainingData] = useState<string>("");
   const [error, setError] = useState<{ error: boolean; text: string }>({
     error: false,
@@ -45,8 +44,12 @@ const ExamDescriptionForm = ({
   const router = useRouter();
 
   const [selectedCourse, setSelectedCourse] = useState<string>("");
-  const [selectedExamType, setSelectedUnit] = useState<string>("");
-  const [numberOfQuestions, setNumberOfQuestions] = useState<string>("");
+  const [selectedExamType, setSelectedExamType] = useState<string>(
+    unitOptions[0].value
+  );
+  const [numberOfQuestions, setNumberOfQuestions] = useState<string>(
+    numberOfQuestionOptions[0].value
+  );
 
   const handleParseFiles = async () => {
     const filesToParse = attachments.filter(
@@ -68,7 +71,14 @@ const ExamDescriptionForm = ({
 
     try {
       const extractedText = await parseAttachments(formData);
-      setTrainingData((prev: string) => prev + extractedText);
+      console.log("====>>>>>>", extractedText);
+      
+      if (!extractedText) {
+        setTrainingData((prev: string) => prev + extractedText);
+      }else{
+        setTrainingData("No Data");
+      }
+      // setTrainingData((prev: string) => prev + extractedText);
       setError({
         text: "Please select at least one file.",
         error: false,
@@ -85,40 +95,58 @@ const ExamDescriptionForm = ({
     }
   };
 
+  useEffect(() => {
+    if (selectedCourse) {
+      const examObject = {
+        course: selectedCourse,
+        examType: unitOptions.filter((elt) => elt.value === selectedExamType)[0]
+          .label,
+        note: textInput,
+        links,
+        baseInformation: training,
+        numberOfQuestions,
+      };
+
+      const examPrompt = buildAssessmentPrompt(examObject);
+      console.log("========>>", examPrompt);
+      
+      (async () => {
+        const result = await handleGetAgentOutput(examPrompt, textInput);
+        console.log("----->", result);
+        
+        await createDocEntry("exams", {
+          id: crypto.randomUUID(),
+          ...result,
+          ...examObject,
+          createdAt: new Date(),
+          examPrompt,
+        });
+
+        setGenerating(false);
+        router.push("/exams");
+      })();
+
+      setGenerating(false);
+    }
+  }, [training]);
+
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setGenerating(true);
     await handleParseFiles();
     console.info("===== Done Parsing Training Data ======");
-
-    const examObject = {
-      course: selectedCourse,
-      examType: unitOptions.filter((elt) => elt.value === selectedExamType)[0]
-        .label,
-      note: textInput,
-      links,
-      baseInformation: training,
-    };
-
-    const examPrompt = buildAssessmentPrompt(examObject);
-    console.log(examObject, examPrompt);
-    
-    // const result = await handleGetAgentOutput(examPrompt, textInput);
-    // await createDocEntry("exams", {
-    //   id: crypto.randomUUID(),
-    //   ...result,
-    //   ...examObject,
-    //   createdAt: new Date(),
-    //   examPrompt,
-    // });
-    setGenerating(false);
-    // router.push("/exams");
   };
 
   return (
     <form className="w-full space-y-5" onSubmit={handleFormSubmit}>
       <div className="flex flex-col items-start w-full">
-        <BaseInput label="Course Name" required={true} type="text" onChange={(e) => setSelectedCourse(e.target.value)} additionalStyles="w-full"/> 
+        <BaseInput
+          label="Course Name"
+          required={true}
+          type="text"
+          onChange={(e) => setSelectedCourse(e.target.value)}
+          additionalStyles="w-full"
+        />
       </div>
 
       <div className="flex flex-col items-start w-full">
@@ -136,7 +164,6 @@ const ExamDescriptionForm = ({
             setNumberOfQuestions(e.target.value);
           }}
         >
-          <option value="">Select Number</option>
           {numberOfQuestionOptions.map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}
@@ -156,18 +183,14 @@ const ExamDescriptionForm = ({
           id="unit-select"
           className="w-full bg-gray-100 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
           value={selectedExamType}
-          onChange={(e) => setSelectedUnit(e.target.value)}
+          onChange={(e) => setSelectedExamType(e.target.value)}
         >
-          <option value="">{"Select Exam Type"}</option>
           {unitOptions.map((u) => (
             <option key={u.value} value={u.value}>
               {u.label}
             </option>
           ))}
         </select>
-      </div>
-      <div>
-        {/* <BaseInput label="Number Of Questions" required={true} type="number" onChange={}/> */}
       </div>
       <textarea
         value={textInput}

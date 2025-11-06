@@ -6,6 +6,7 @@ interface UserInput {
   note: string;
   links: String[];
   baseInformation?: string;
+  numberOfQuestions?: string;
 }
 
 export const buildAssessmentPrompt = (input: UserInput) => `
@@ -29,16 +30,8 @@ export const buildAssessmentPrompt = (input: UserInput) => `
     </systemRole>
     <rules>
     - The type of custom assessment exam is ${input.examType}.
+    - The number of questions are ${input.numberOfQuestions}.
     </rules>
-    <outputSchema>
-    [{
-    "question": "<question>",
-    "options": ["option 1", "option 2", ...],
-    "answer" : "correct answer"
-    },
-    .......
-    ]
-    </outputSchema>
 `;
 
 export const buildQuestionPrompt = (
@@ -63,7 +56,7 @@ export const buildQuestionPrompt = (
     </outputSchema>
 `;
 
-// Prepare an exam on the unit "Quantitative Analysis of Linear Motion" on Motion due to gravity (the exam is 10 questions).
+// Prepare questions on the unit "Quantitative Analysis of Linear Motion" on Motion due to gravity.
 // https://www.uvm.edu/~ldonfort/P21S20/2_Kinematics.pdf
 // https://phys.libretexts.org/Bookshelves/University_Physics/Book%3A_Introductory_Physics_-_Building_Models_to_Describe_Our_World_(Martin_Neary_Rinaldo_and_Woodman)/06%3A_Applying_Newtons_Laws/6.02%3A_Linear_motion
 // https://www.wscacademy.org/ourpages/auto/2012/12/2/58245433/Physics%20Chapter%204%20Textbook.pdf

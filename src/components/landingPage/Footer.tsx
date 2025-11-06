@@ -17,7 +17,7 @@ const Footer = () => {
       <div className="space-y-10">
         <div className="flex items-center">
           <LogoIcon color="#263238" size={40} />
-          <span className="text-white text-4xl font-semibold">Teacher</span>
+          <span className="text-white text-4xl font-semibold">Tcher</span>
         </div>
         <div>
           <p className="text-white text-sm pl-2">

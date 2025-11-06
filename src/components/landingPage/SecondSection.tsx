@@ -30,7 +30,7 @@ const SecondSection = () => {
           </span>
           {"  "}
           <span className="text-textDarkColor text-5xl font-semibold max-md:text-3xl">
-            Teacher?
+            Tcher?
           </span>
         </div>
 

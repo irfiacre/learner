@@ -8,7 +8,7 @@ function LogoIcon({ size, color }: { size?: number; color?: string }) {
       style={{ backgroundColor: color }}
     >
       <Icon
-        icon="ri:book-shelf-line"
+        icon="ph:exam-fill"
         fontSize={size}
         className="text-white"
       />
