@@ -9,4 +9,4 @@ This is an AI application that facilitates teachers with question setting.
 #### Features:
 - Question setting.
 - Auth.
-- Printing question.
+- Printing.
